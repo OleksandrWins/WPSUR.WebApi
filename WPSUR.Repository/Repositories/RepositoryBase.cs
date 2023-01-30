@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WPSUR.Repository.Entities;
+using WPSUR.Repository.Interfaces;
 
-namespace WPSUR.Repository.Interfaces
+namespace WPSUR.Repository.Repositories
 {
-    public abstract class RepositoryBase<T> : IRepositotyBase<T> where T: EntityBase
+    public abstract class RepositoryBase<T> : IRepositotyBase<T> where T : EntityBase
     {
         private readonly ApplicationDbContext _dbContext;
 
@@ -12,11 +13,11 @@ namespace WPSUR.Repository.Interfaces
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public virtual async Task<T> GetByIdAsync(Guid id)
+        public async Task<T> GetByIdAsync(Guid id)
         {
             try
             {
-                T? entity = await _dbContext.Set<T>().FirstOrDefaultAsync(x => x.Id == id);
+                T entity = await _dbContext.Set<T>().FirstOrDefaultAsync(x => x.Id == id);
 
                 return entity ?? throw new NullReferenceException(nameof(entity));
             }

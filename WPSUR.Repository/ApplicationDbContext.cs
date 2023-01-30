@@ -3,7 +3,7 @@ using WPSUR.Repository.Entities;
 
 namespace WPSUR.Repository
 {
-    public  class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -13,5 +13,7 @@ namespace WPSUR.Repository
         public DbSet<UserEntity> Users { get; set; }
 
         public DbSet<PostEntity> Posts { get; set; }
+
+        public DbSet<MessageEntity> Messages { get; set; }
     }
 }
