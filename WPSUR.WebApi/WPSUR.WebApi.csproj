@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WPSUR.Repository\WPSUR.Repository.csproj" />
+	<ProjectReference Include="..\WPSUR.Repository\WPSUR.Repository.csproj" />
     <ProjectReference Include="..\WPSUR.Services\WPSUR.Services.csproj" />
     <ProjectReference Include="..\WPSUR.Tests\WPSUR.Tests.csproj" />
   </ItemGroup>

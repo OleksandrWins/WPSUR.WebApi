@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WPSUR.Repository.Entities;
+﻿using WPSUR.Repository.Entities;
 using WPSUR.Repository.Interfaces;
 
 namespace WPSUR.Repository.Repositories
 {
-    public class UserRepository : RepositoryBase<UserEntity>
+    public sealed class UserRepository : RepositoryBase<UserEntity>, IUserRepository
     {
         private readonly ApplicationDbContext _dbContext;
 
