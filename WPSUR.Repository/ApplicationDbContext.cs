@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using WPSUR.Repository.Entities;
 
 namespace WPSUR.Repository
@@ -16,8 +17,20 @@ namespace WPSUR.Repository
 
         public DbSet<MessageEntity> Messages { get; set; }
 
-        public DbSet<MainTagEntity>  MainTags { get; set; }
+        public DbSet<MainTagEntity> MainTags { get; set; }
 
         public DbSet<SubTagEntity> SubTags { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            IEnumerable<IMutableForeignKey> foreignKeys = modelBuilder.Model
+                .GetEntityTypes()
+                .SelectMany(entityType => entityType.GetForeignKeys());
+
+            foreach (IMutableForeignKey foreignKey in foreignKeys)
+            {
+                foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
+            }
+        }
     }
 }
