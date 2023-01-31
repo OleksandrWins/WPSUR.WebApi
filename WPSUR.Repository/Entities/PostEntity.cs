@@ -1,11 +1,8 @@
-﻿namespace WPSUR.Repository.Entities
-{
-    public class PostEntity : ManageableEntityBase
-    {
-        public PostEntity()
-        {
-                
-        }
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-    }
+namespace WPSUR.Repository.Entities
+{
+    [Table("Post")]
+    public class PostEntity : ManageableEntityBase
+    { }
 }
