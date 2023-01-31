@@ -3,17 +3,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WPSUR.Repository.Entities
 {
-    [Table("Post")]
-    public class PostEntity : ManageableEntityBase
+    [Table("MainTag")]
+    public class MainTagEntity: ManageableEntityBase
     {
         [MaxLength(50)]
         public string Title { get; set; }
 
-        [MaxLength(1000)]
-        public string Body { get; set; }
-
-        public MainTagEntity MainTag { get; set; }
-
         public ICollection<SubTagEntity> SubTags { get; set; }
+
+        public ICollection<PostEntity> Posts { get; set; }
     }
 }
