@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WPSUR.Repository.Entities
 {
+    [Table("Message")]
     public sealed class MessageEntity : ManageableEntityBase
     {
         public UserEntity UserFrom { get; set; }
