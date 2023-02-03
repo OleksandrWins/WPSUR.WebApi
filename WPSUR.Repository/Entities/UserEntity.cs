@@ -1,7 +1,8 @@
-﻿namespace WPSUR.Repository.Entities
-{
-    public class UserEntity : EntityBase
-    {  
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-    }
+namespace WPSUR.Repository.Entities
+{
+    [Table("User")]
+    public sealed class UserEntity : EntityBase
+    { }
 }

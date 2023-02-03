@@ -1,5 +1,4 @@
-﻿
-using WPSUR.Repository.Entities;
+﻿using WPSUR.Repository.Entities;
 
 namespace WPSUR.Repository.Interfaces
 {

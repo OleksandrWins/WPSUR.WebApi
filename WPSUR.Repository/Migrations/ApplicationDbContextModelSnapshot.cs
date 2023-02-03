@@ -32,7 +32,7 @@ namespace WPSUR.Repository.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<Guid?>("CreatedById")
+                    b.Property<Guid>("CreatedById")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
@@ -41,13 +41,13 @@ namespace WPSUR.Repository.Migrations
                     b.Property<Guid?>("DeletedById")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("DeletedDate")
+                    b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid?>("UpdatedById")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("UpdatedData")
+                    b.Property<DateTime?>("UpdatedData")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid?>("UserFromId")
@@ -68,7 +68,7 @@ namespace WPSUR.Repository.Migrations
 
                     b.HasIndex("UserToId");
 
-                    b.ToTable("Messages");
+                    b.ToTable("Message");
                 });
 
             modelBuilder.Entity("WPSUR.Repository.Entities.PostEntity", b =>
@@ -77,7 +77,7 @@ namespace WPSUR.Repository.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CreatedById")
+                    b.Property<Guid>("CreatedById")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
@@ -86,13 +86,13 @@ namespace WPSUR.Repository.Migrations
                     b.Property<Guid?>("DeletedById")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("DeletedDate")
+                    b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid?>("UpdatedById")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("UpdatedData")
+                    b.Property<DateTime?>("UpdatedData")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
@@ -103,7 +103,7 @@ namespace WPSUR.Repository.Migrations
 
                     b.HasIndex("UpdatedById");
 
-                    b.ToTable("Posts");
+                    b.ToTable("Post");
                 });
 
             modelBuilder.Entity("WPSUR.Repository.Entities.UserEntity", b =>
@@ -114,14 +114,16 @@ namespace WPSUR.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("WPSUR.Repository.Entities.MessageEntity", b =>
                 {
                     b.HasOne("WPSUR.Repository.Entities.UserEntity", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CreatedById");
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("WPSUR.Repository.Entities.UserEntity", "DeletedBy")
                         .WithMany()
@@ -154,7 +156,9 @@ namespace WPSUR.Repository.Migrations
                 {
                     b.HasOne("WPSUR.Repository.Entities.UserEntity", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CreatedById");
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("WPSUR.Repository.Entities.UserEntity", "DeletedBy")
                         .WithMany()
