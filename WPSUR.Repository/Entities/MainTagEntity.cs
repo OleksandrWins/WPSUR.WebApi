@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace WPSUR.Repository.Entities
 {
     [Table("MainTag")]
-    public class MainTagEntity: ManageableEntityBase
+    public sealed class MainTagEntity: ManageableEntityBase
     {
         [MaxLength(50)]
         public string Title { get; set; }

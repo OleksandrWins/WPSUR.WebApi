@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace WPSUR.Repository.Entities
 {
     [Table("Post")]
-    public class PostEntity : ManageableEntityBase
+    public sealed class PostEntity : ManageableEntityBase
     {
         [MaxLength(50)]
         public string Title { get; set; }

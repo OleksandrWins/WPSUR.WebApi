@@ -5,6 +5,6 @@ namespace WPSUR.Services.Interfaces
 {
     public interface IMainTagService
     {
-        public Task<MainTagEntity> CreateMainTag(PostModel postModel);
+        public Task<MainTagEntity> GetOrCreateMainTagAsync(PostModel postModel);
     }
 }

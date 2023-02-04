@@ -11,7 +11,7 @@ namespace WPSUR.Services.Services
         {
             _subTagRepository = subTagRepository;
         }
-        public async Task<SubTagEntity> CreateSubTag(string subTagTitle)
+        public async Task<SubTagEntity> GetOrCreateSubTagAsync(string subTagTitle)
         {
             SubTagEntity subTag = await _subTagRepository.GetSubTagByTitleAsync(subTagTitle);
             if (subTag != null)

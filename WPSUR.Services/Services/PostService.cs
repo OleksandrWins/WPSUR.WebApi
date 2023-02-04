@@ -12,6 +12,7 @@ namespace WPSUR.Services.Services
         private readonly IPostRepository _postRepository;
         private readonly ISubTagService _subTagService;
         private readonly IMainTagService _mainTagService;
+        private readonly IValidationPostService _validationPostService;
 
         public PostService(IPostRepository postRepository, ISubTagService subTagService, IMainTagService mainTagService)
         {
@@ -20,39 +21,24 @@ namespace WPSUR.Services.Services
             _mainTagService = mainTagService;
         }
 
-        public async Task CreatePost(PostModel postModel)
+        public async Task CreatePostAsync(PostModel postModel)
         {
-            if (postModel.Title.IsNullOrEmpty())
-            {
-                throw new NullReferenceException("The post title is empty.");
-            }
-            if (postModel.Title.Length > 50)
-            {
-                throw new LengthOfTitleException("The title of the post should not exceed 50 symbols.");
-            }
-            if (postModel.Body.IsNullOrEmpty())
-            {
-                throw new NullReferenceException("The body of the post is empty.");
-            }
-            if (postModel.Body.Length > 1000)
-            {
-                throw new LengthOfBodyException("The body of the post should not exceed 1000 symbols.");
-            }
+            _validationPostService.ValidatePost(postModel);
 
             PostEntity postEntity = new PostEntity()
             {
                 Id = Guid.NewGuid(),
                 Title = postModel.Title,
                 Body = postModel.Body,
-                MainTag = await _mainTagService.CreateMainTag(postModel),
+                MainTag = await _mainTagService.GetOrCreateMainTagAsync(postModel),
             };
             foreach (string subTagTitle in postModel.SubTags)
             {
-                postEntity.SubTags.Add(await _subTagService.CreateSubTag(subTagTitle));
+                postEntity.SubTags.Add(await _subTagService.GetOrCreateSubTagAsync(subTagTitle));
             }
             try
             {
-                await _postRepository.SaveNewPost(postEntity);
+                await _postRepository.SaveNewPostAsync(postEntity);
             }
             catch (Exception)
             {

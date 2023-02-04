@@ -14,7 +14,7 @@ namespace WPSUR.Services.Services
             _mainTagRepository = mainTagRepository;
         }
 
-        public async Task<MainTagEntity> CreateMainTag(PostModel postModel)
+        public async Task<MainTagEntity> GetOrCreateMainTagAsync(PostModel postModel)
         {
             MainTagEntity mainTag = await _mainTagRepository.GetMainTagByTitleAsync(postModel.MainTag);
             if (mainTag != null)

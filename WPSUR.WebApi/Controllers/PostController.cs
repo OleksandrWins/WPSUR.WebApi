@@ -28,7 +28,7 @@ namespace WPSUR.WebApi.Controllers
             };
             try
             {
-                await _postService.CreatePost(postModel);
+                await _postService.CreatePostAsync(postModel);
                 return Ok();
             }
             catch (NotImplementedException)

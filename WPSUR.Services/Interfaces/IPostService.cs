@@ -4,6 +4,6 @@ namespace WPSUR.Services.Interfaces
 {
     public interface IPostService
     {
-        public Task CreatePost(PostModel _post);
+        public Task CreatePostAsync(PostModel post);
     }
 }

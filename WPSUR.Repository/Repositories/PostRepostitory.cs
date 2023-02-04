@@ -12,7 +12,8 @@ namespace WPSUR.Repository.Repositories
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
-        public async Task SaveNewPost(PostEntity post)
+
+        public async Task SaveNewPostAsync(PostEntity post)
         {
             try
             {
@@ -25,6 +26,7 @@ namespace WPSUR.Repository.Repositories
                 throw;
             }
         }
+
         public async Task<PostEntity> GetPostByTitleAsync(string title)
         {
             try
@@ -38,6 +40,7 @@ namespace WPSUR.Repository.Repositories
                 throw;
             }
         }
+
         public async Task<PostEntity> GetPostByBodyAsync(string body)
         {
             try
