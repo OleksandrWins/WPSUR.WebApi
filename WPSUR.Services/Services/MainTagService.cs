@@ -9,6 +9,7 @@ namespace WPSUR.Services.Services
     {
         private readonly IMainTagRepository _mainTagRepository;
 
+
         public MainTagService(IMainTagRepository mainTagRepository, ISubTagService subTagService, IPostService postService)
         {
             _mainTagRepository = mainTagRepository;

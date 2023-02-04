@@ -1,5 +1,4 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using WPSUR.Repository.Entities;
+﻿using WPSUR.Repository.Entities;
 using WPSUR.Repository.Interfaces;
 using WPSUR.Services.Exceptions.PostExceptions;
 using WPSUR.Services.Interfaces;
@@ -12,7 +11,6 @@ namespace WPSUR.Services.Services
         private readonly IPostRepository _postRepository;
         private readonly ISubTagService _subTagService;
         private readonly IMainTagService _mainTagService;
-        private readonly IValidationPostService _validationPostService;
 
         public PostService(IPostRepository postRepository, ISubTagService subTagService, IMainTagService mainTagService)
         {
@@ -23,7 +21,22 @@ namespace WPSUR.Services.Services
 
         public async Task CreatePostAsync(PostModel postModel)
         {
-            _validationPostService.ValidatePost(postModel);
+            if (String.IsNullOrWhiteSpace(postModel.Title))
+            {
+                throw new NullReferenceException("The post title is empty.");
+            }
+            if (postModel.Title.Length > 50)
+            {
+                throw new LengthOfTitleException("The title of the post should not exceed 50 symbols.");
+            }
+            if (String.IsNullOrWhiteSpace(postModel.Body))
+            {
+                throw new NullReferenceException("The body of the post is empty.");
+            }
+            if (postModel.Body.Length > 1000)
+            {
+                throw new LengthOfBodyException("The body of the post should not exceed 1000 symbols.");
+            }
 
             PostEntity postEntity = new PostEntity()
             {
@@ -36,14 +49,8 @@ namespace WPSUR.Services.Services
             {
                 postEntity.SubTags.Add(await _subTagService.GetOrCreateSubTagAsync(subTagTitle));
             }
-            try
-            {
-                await _postRepository.SaveNewPostAsync(postEntity);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+
+            await _postRepository.SaveNewPostAsync(postEntity);
         }
     }
 }
