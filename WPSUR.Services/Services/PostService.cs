@@ -45,11 +45,18 @@ namespace WPSUR.Services.Services
                 Body = postModel.Body,
                 MainTag = await _mainTagService.GetOrCreateMainTagAsync(postModel),
             };
+
+            await _mainTagService.AddPostToMainTag(postEntity, postEntity.MainTag);
+
             foreach (string subTagTitle in postModel.SubTags)
             {
-                postEntity.SubTags.Add(await _subTagService.GetOrCreateSubTagAsync(subTagTitle));
+                SubTagEntity subTag = await _subTagService.GetOrCreateSubTagAsync(subTagTitle);
+                postEntity.SubTags.Add(subTag);
+                await _subTagService.AddPostToSubTag(postEntity, subTag);
+                await _mainTagService.AddSubTagToMainTag(subTag, postEntity.MainTag);
             }
 
+            //await _mainTagService.ConnectSubTagWithMainTag();
             await _postRepository.SaveNewPostAsync(postEntity);
         }
     }

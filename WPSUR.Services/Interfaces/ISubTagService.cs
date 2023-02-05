@@ -5,5 +5,6 @@ namespace WPSUR.Services.Interfaces
     public interface ISubTagService
     {
         public Task<SubTagEntity> GetOrCreateSubTagAsync(string subTagTitle);
+        public Task<SubTagEntity> AddPostToSubTag(PostEntity post, SubTagEntity subTag);
     }
 }

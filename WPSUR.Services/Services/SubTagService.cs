@@ -28,5 +28,10 @@ namespace WPSUR.Services.Services
             };
             return subTagEntity;
         }
+        public async Task<SubTagEntity> AddPostToSubTag(PostEntity post, SubTagEntity subTag)
+        {
+            subTag.Posts.Add(post);
+            return subTag;
+        }
     }
 }
