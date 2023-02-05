@@ -54,9 +54,9 @@ namespace WPSUR.Services.Services
                 postEntity.SubTags.Add(subTag);
                 await _subTagService.AddPostToSubTag(postEntity, subTag);
                 await _mainTagService.AddSubTagToMainTag(subTag, postEntity.MainTag);
+                await _subTagService.AddMainTagToSubTag(postEntity.MainTag, subTag);
             }
 
-            //await _mainTagService.ConnectSubTagWithMainTag();
             await _postRepository.SaveNewPostAsync(postEntity);
         }
     }
