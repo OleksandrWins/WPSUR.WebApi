@@ -1,5 +1,6 @@
 ﻿using WPSUR.Repository.Entities;
 using WPSUR.Repository.Interfaces;
+using WPSUR.Repository.Repositories;
 using WPSUR.Services.Interfaces;
 using WPSUR.Services.Models.Post;
 
@@ -8,8 +9,12 @@ namespace WPSUR.Services.Services
     public class SubTagService : ISubTagService
     {
         private readonly ISubTagRepository _subTagRepository;
-        public SubTagService(ISubTagRepository subTagRepository, IMainTagService mainTagService, IPostService postService)
+        public SubTagService(ISubTagRepository subTagRepository)
         {
+            if (subTagRepository == null)
+            {
+                throw new NullReferenceException("An error occurred.");
+            }
             _subTagRepository = subTagRepository;
         }
         public async Task<SubTagEntity> GetOrCreateSubTagAsync(string subTagTitle)

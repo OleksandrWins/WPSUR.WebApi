@@ -43,7 +43,7 @@ namespace WPSUR.Services.Services
                 Id = Guid.NewGuid(),
                 Title = postModel.Title,
                 Body = postModel.Body,
-                MainTag = await _mainTagService.GetOrCreateMainTagAsync(postModel),
+                MainTag = await _mainTagService.GetOrCreateMainTagAsync(postModel.MainTag),
             };
 
             await _mainTagService.AddPostToMainTagAsync(postEntity, postEntity.MainTag);

@@ -10,28 +10,32 @@ namespace WPSUR.Services.Services
         private readonly IMainTagRepository _mainTagRepository;
 
 
-        public MainTagService(IMainTagRepository mainTagRepository, ISubTagService subTagService, IPostService postService)
+        public MainTagService(IMainTagRepository mainTagRepository)
         {
+            if (mainTagRepository==null)
+            {
+                throw new NullReferenceException("An error occurred.");
+            }
             _mainTagRepository = mainTagRepository;
         }
 
-        public async Task<MainTagEntity> GetOrCreateMainTagAsync(PostModel postModel)
+        public async Task<MainTagEntity> GetOrCreateMainTagAsync(string mainTagTitle)
         {
-            MainTagEntity mainTag = await _mainTagRepository.GetMainTagByTitleAsync(postModel.MainTag);
+            MainTagEntity mainTag = await _mainTagRepository.GetMainTagByTitleAsync(mainTagTitle);
             if (mainTag != null)
             {
                 return mainTag;
             }
-            if (postModel.MainTag==null)
+            if (mainTagTitle == null)
             {
                 throw new NullReferenceException("The main tag is empty.");
             }
-            postModel.MainTag = postModel.MainTag.Trim();
-            postModel.MainTag.ToUpper();
+            mainTagTitle = mainTagTitle.Trim();
+            mainTagTitle.ToUpper();
             MainTagEntity mainTagEntity = new MainTagEntity()
             {
                 Id = Guid.NewGuid(),
-                Title = postModel.MainTag,
+                Title = mainTagTitle,
                 CreatedDate = DateTime.UtcNow
             };
             return mainTagEntity;
