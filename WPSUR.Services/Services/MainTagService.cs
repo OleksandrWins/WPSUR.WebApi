@@ -1,7 +1,9 @@
 ﻿using WPSUR.Repository.Entities;
 using WPSUR.Repository.Interfaces;
+using WPSUR.Repository.Repositories;
 using WPSUR.Services.Interfaces;
 using WPSUR.Services.Models.Post;
+using WPSUR.Services.Models.Tags;
 
 namespace WPSUR.Services.Services
 {
@@ -12,21 +14,42 @@ namespace WPSUR.Services.Services
 
         public MainTagService(IMainTagRepository mainTagRepository)
         {
-            if (mainTagRepository==null)
-            {
-                throw new NullReferenceException("An error occurred.");
-            }
-            _mainTagRepository = mainTagRepository;
+            _mainTagRepository = mainTagRepository ?? throw new ArgumentNullException(nameof(mainTagRepository)); 
         }
 
-        public async Task<MainTagEntity> GetOrCreateMainTagAsync(string mainTagTitle)
+        //public async Task<MainTagEntity> GetOrCreateMainTagAsync(string mainTagTitle)
+        //{
+        //    MainTagEntity mainTag = await _mainTagRepository.GetMainTagByTitleAsync(mainTagTitle);
+        //    if (mainTag != null)
+        //    {
+        //        return mainTag;
+        //    }
+        //    if (string.IsNullOrWhiteSpace(mainTagTitle))
+        //    {
+        //        throw new NullReferenceException("The main tag is empty.");
+        //    }
+        //    mainTagTitle = mainTagTitle.Trim();
+        //    mainTagTitle.ToUpper();
+        //    MainTagEntity mainTagEntity = new MainTagEntity()
+        //    {
+        //        Id = Guid.NewGuid(),
+        //        Title = mainTagTitle,
+        //        CreatedDate = DateTime.UtcNow
+        //    };
+        //    return mainTagEntity;
+        //}
+        public async Task<MainTagModel> GetOrCreateMainTagAsync(string mainTagTitle)
         {
             MainTagEntity mainTag = await _mainTagRepository.GetMainTagByTitleAsync(mainTagTitle);
             if (mainTag != null)
             {
-                return mainTag;
+                MainTagModel mainTagModelFromDatabase = new MainTagModel()
+                {
+                    Title = mainTagTitle
+                };
+                return mainTagModelFromDatabase;
             }
-            if (mainTagTitle == null)
+            if (string.IsNullOrWhiteSpace(mainTagTitle))
             {
                 throw new NullReferenceException("The main tag is empty.");
             }

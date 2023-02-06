@@ -11,11 +11,7 @@ namespace WPSUR.Services.Services
         private readonly ISubTagRepository _subTagRepository;
         public SubTagService(ISubTagRepository subTagRepository)
         {
-            if (subTagRepository == null)
-            {
-                throw new NullReferenceException("An error occurred.");
-            }
-            _subTagRepository = subTagRepository;
+            _subTagRepository = subTagRepository ?? throw new ArgumentNullException(nameof(subTagRepository)); 
         }
         public async Task<SubTagEntity> GetOrCreateSubTagAsync(string subTagTitle)
         {
@@ -24,7 +20,7 @@ namespace WPSUR.Services.Services
             {
                 return subTag;
             }
-            if (subTagTitle == null)
+            if (string.IsNullOrWhiteSpace(subTagTitle))
             {
                 throw new NullReferenceException("The sub tag is empty.");
             }

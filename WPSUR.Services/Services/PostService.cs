@@ -45,9 +45,7 @@ namespace WPSUR.Services.Services
                 Body = postModel.Body,
                 MainTag = await _mainTagService.GetOrCreateMainTagAsync(postModel.MainTag),
             };
-
             await _mainTagService.AddPostToMainTagAsync(postEntity, postEntity.MainTag);
-
             foreach (string subTagTitle in postModel.SubTags)
             {
                 SubTagEntity subTag = await _subTagService.GetOrCreateSubTagAsync(subTagTitle);
@@ -56,7 +54,6 @@ namespace WPSUR.Services.Services
                 await _mainTagService.AddSubTagToMainTagAsync(subTag, postEntity.MainTag);
                 await _subTagService.AddMainTagToSubTagAsync(postEntity.MainTag, subTag);
             }
-
             await _postRepository.SaveNewPostAsync(postEntity);
         }
     }
