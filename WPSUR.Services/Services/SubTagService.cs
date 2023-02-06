@@ -1,6 +1,7 @@
 ﻿using WPSUR.Repository.Entities;
 using WPSUR.Repository.Interfaces;
 using WPSUR.Services.Interfaces;
+using WPSUR.Services.Models.Post;
 
 namespace WPSUR.Services.Services
 {
@@ -17,6 +18,10 @@ namespace WPSUR.Services.Services
             if (subTag != null)
             {
                 return subTag;
+            }
+            if (subTagTitle == null)
+            {
+                throw new NullReferenceException("The sub tag is empty.");
             }
             subTagTitle = subTagTitle.Trim();
             subTagTitle.ToUpper();

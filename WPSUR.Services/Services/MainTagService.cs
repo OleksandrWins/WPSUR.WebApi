@@ -22,6 +22,10 @@ namespace WPSUR.Services.Services
             {
                 return mainTag;
             }
+            if (postModel.MainTag==null)
+            {
+                throw new NullReferenceException("The main tag is empty.");
+            }
             postModel.MainTag = postModel.MainTag.Trim();
             postModel.MainTag.ToUpper();
             MainTagEntity mainTagEntity = new MainTagEntity()
