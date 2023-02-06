@@ -9,7 +9,7 @@ namespace WPSUR.Repository.Entities
         [MaxLength(50)]
         public string Title { get; set; }
 
-        public MainTagEntity MainTag { get; set; }
+        public ICollection<MainTagEntity> MainTags { get; set; }
 
         public ICollection<PostEntity> Posts { get; set; }
     }
