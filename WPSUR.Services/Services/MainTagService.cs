@@ -1,5 +1,6 @@
 ﻿using WPSUR.Repository.Entities;
 using WPSUR.Repository.Interfaces;
+using WPSUR.Repository.Migrations;
 using WPSUR.Services.Interfaces;
 
 namespace WPSUR.Services.Services
@@ -40,9 +41,12 @@ namespace WPSUR.Services.Services
             mainTag.Posts.Add(post);
             return mainTag;
         }
-        public async Task<MainTagEntity> AddSubTagsToMainTagAsync(SubTagEntity subTag, MainTagEntity mainTag)
+        public async Task<MainTagEntity> AddSubTagsToMainTagAsync(ICollection<SubTagEntity> subTags, MainTagEntity mainTag)
         {
-            mainTag.SubTags.Add(subTag);
+            foreach (var subTag in subTags)
+            {
+                mainTag.SubTags.Add(subTag);
+            }
             return mainTag;
         }
     }

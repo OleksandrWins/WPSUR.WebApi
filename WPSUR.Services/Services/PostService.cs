@@ -47,15 +47,9 @@ namespace WPSUR.Services.Services
                 SubTags = await _subTagService.GetOrCreateSubTagsAsync(postModel.SubTags)
             };
             await _mainTagService.AddPostToMainTagAsync(postEntity, postEntity.MainTag);
-
-            //foreach (string subTagTitle in postModel.SubTags)
-            //{
-            //    SubTagEntity subTag = await _subTagService.GetOrCreateSubTagAsync(subTagTitle);
-            //    postEntity.SubTags.Add(subTag);
-            //    await _subTagService.AddPostToSubTagAsync(postEntity, subTag);
-            //    await _mainTagService.AddSubTagToMainTagAsync(subTag, postEntity.MainTag);
-            //    await _subTagService.AddMainTagToSubTagAsync(postEntity.MainTag, subTag);
-            //}
+            await _mainTagService.AddSubTagsToMainTagAsync(postEntity.SubTags, postEntity.MainTag);
+            await _subTagService.AddPostToSubTagsAsync(postEntity, postEntity.SubTags);
+            await _subTagService.AddMainTagToSubTagsAsync(postEntity.MainTag, postEntity.SubTags);
             await _postRepository.SaveNewPostAsync(postEntity);
         }
     }
