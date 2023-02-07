@@ -1,22 +1,26 @@
-﻿using WPSUR.Repository.Entities;
+﻿using System.Reflection.Metadata;
+using System.Security.Cryptography.X509Certificates;
+using WPSUR.Repository.Entities;
 using WPSUR.Repository.Interfaces;
+using WPSUR.Repository.Repositories;
 using WPSUR.Services.Exceptions.PostExceptions;
 using WPSUR.Services.Interfaces;
 using WPSUR.Services.Models.Post;
+using WPSUR.Services.Models.Tags;
 
 namespace WPSUR.Services.Services
 {
     public class PostService : IPostService
     {
         private readonly IPostRepository _postRepository;
-        private readonly ISubTagService _subTagService;
-        private readonly IMainTagService _mainTagService;
+        private readonly IMainTagRepository _mainTagRepository;
+        private readonly ISubTagRepository _subTagRepository;
 
-        public PostService(IPostRepository postRepository, ISubTagService subTagService, IMainTagService mainTagService)
+        public PostService(IPostRepository postRepository, IMainTagRepository mainTagRepository, ISubTagRepository subTagRepository)
         {
-            _postRepository = postRepository ?? throw new ArgumentNullException(nameof(postRepository)); 
-            _subTagService = subTagService ?? throw new ArgumentNullException(nameof(subTagService));
-            _mainTagService = mainTagService ?? throw new ArgumentNullException(nameof(mainTagService));
+            _postRepository = postRepository ?? throw new ArgumentNullException(nameof(postRepository));
+            _mainTagRepository = mainTagRepository ?? throw new ArgumentNullException(nameof(mainTagRepository));
+            _subTagRepository = subTagRepository ?? throw new ArgumentNullException(nameof(subTagRepository));
         }
 
         public async Task CreatePostAsync(PostModel postModel)
@@ -37,20 +41,54 @@ namespace WPSUR.Services.Services
             {
                 throw new LengthOfBodyException("The body of the post should not exceed 1000 symbols.");
             }
+            MainTagEntity mainTagEntity = await _mainTagRepository.GetMainTagByTitleAsync(postModel.MainTag);
+            if (mainTagEntity == null)
+            {
+                mainTagEntity = new MainTagEntity()
+                {
+                    Id = Guid.NewGuid(),
+                    Title = postModel.MainTag.Trim().ToUpper(),
+                    CreatedBy = new UserEntity() { Id = Guid.NewGuid() },
+                    CreatedDate = DateTime.UtcNow,
+                };
+            }
 
-            PostEntity postEntity = new PostEntity()
+            ICollection<SubTagEntity> subTagEntities = await _subTagRepository.GetSubTagsByNamesAsync(postModel.SubTags);
+            var subTagsToAdd = postModel.SubTags.Where(xx => !subTagEntities.Any(xxx => xxx.Title == xx)).ToList().AsReadOnly();
+            foreach(string subTag in subTagsToAdd)
+            {
+                subTagEntities.Add(new SubTagEntity()
+                {
+                    Id = Guid.NewGuid(),
+                    Title = subTag.Trim().ToUpper(),
+                    CreatedBy = new UserEntity() { Id = Guid.NewGuid() },
+                    CreatedDate = DateTime.UtcNow,
+                }) ;
+            }
+
+            foreach (SubTagEntity subTagEntity in subTagEntities)
+            {
+                if (subTagEntity.MainTags is null)
+                {
+                    subTagEntity.MainTags = new List<MainTagEntity>();
+                }
+                if (!subTagEntity.MainTags.Contains(mainTagEntity))
+                {
+                    subTagEntity.MainTags.Add(mainTagEntity);
+                }
+            }
+
+            PostEntity postEntity = new()
             {
                 Id = Guid.NewGuid(),
                 Title = postModel.Title,
                 Body = postModel.Body,
-                MainTag = await _mainTagService.GetOrCreateMainTagAsync(postModel.MainTag),
-                SubTags = await _subTagService.GetOrCreateSubTagsAsync(postModel.SubTags)
+                MainTag = mainTagEntity,
+                SubTags = subTagEntities,
+                CreatedBy = new UserEntity() { Id = Guid.NewGuid()},
+                CreatedDate = DateTime.UtcNow,
             };
-            await _mainTagService.AddPostToMainTagAsync(postEntity, postEntity.MainTag);
-            await _mainTagService.AddSubTagsToMainTagAsync(postEntity.SubTags, postEntity.MainTag);
-            await _subTagService.AddPostToSubTagsAsync(postEntity, postEntity.SubTags);
-            await _subTagService.AddMainTagToSubTagsAsync(postEntity.MainTag, postEntity.SubTags);
-            await _postRepository.SaveNewPostAsync(postEntity);
+            await _postRepository.CreateAsync(postEntity);
         }
     }
 }

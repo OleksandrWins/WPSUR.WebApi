@@ -12,8 +12,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddScoped<IPostService, PostService>();
-builder.Services.AddScoped<IMainTagService, MainTagService>();
-builder.Services.AddScoped<ISubTagService, SubTagService>();
 builder.Services.AddScoped<IPostRepository, PostRepostitory>();
 builder.Services.AddScoped<IMainTagRepository, MainTagRepository>();
 builder.Services.AddScoped<ISubTagRepository, SubTagRepository>();

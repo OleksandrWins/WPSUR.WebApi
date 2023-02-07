@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using WPSUR.Repository.Entities;
+﻿using WPSUR.Repository.Entities;
 using WPSUR.Repository.Interfaces;
 
 namespace WPSUR.Repository.Repositories
@@ -12,8 +11,7 @@ namespace WPSUR.Repository.Repositories
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
-
-        public async Task SaveNewPostAsync(PostEntity post)
+        public async Task CreateAsync(PostEntity post)
         {
             try
             {
@@ -22,34 +20,6 @@ namespace WPSUR.Repository.Repositories
                 await _dbContext.SaveChangesAsync();
             }
             catch (Exception)
-            {
-                throw;
-            }
-        }
-
-        public async Task<PostEntity> GetPostByTitleAsync(string title)
-        {
-            try
-            {
-                PostEntity post = await _dbContext.Set<PostEntity>().FirstOrDefaultAsync(x => x.Title == title);
-
-                return post ?? throw new NullReferenceException(nameof(post));
-            }
-            catch
-            {
-                throw;
-            }
-        }
-
-        public async Task<PostEntity> GetPostByBodyAsync(string body)
-        {
-            try
-            {
-                PostEntity post = await _dbContext.Set<PostEntity>().FirstOrDefaultAsync(x => x.Body == body);
-
-                return post ?? throw new NullReferenceException(nameof(post));
-            }
-            catch
             {
                 throw;
             }
