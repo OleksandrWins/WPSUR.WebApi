@@ -1,4 +1,5 @@
-﻿using WPSUR.Repository.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using WPSUR.Repository.Entities;
 using WPSUR.Repository.Interfaces;
 
 namespace WPSUR.Repository.Repositories
@@ -12,11 +13,30 @@ namespace WPSUR.Repository.Repositories
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task CreateMessageAsync(MessageEntity message)
+        public async Task CreateAsync(MessageEntity message)
         {
             await _dbContext.Messages.AddAsync(message);
 
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task DeleteCollectionAsync(ICollection<MessageEntity> messages, UserEntity user)
+        {
+            _dbContext.UpdateRange(messages);
+
+            foreach (MessageEntity message in messages)
+            {
+                message.DeletedBy = user;
+                message.DeletedDate = DateTime.UtcNow;
+            }
+
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<ICollection<MessageEntity>> GetMessagesCollectionAsync(ICollection<Guid> messagesIds) 
+            => await _dbContext.Messages.Where(message => messagesIds.Contains(message.Id))
+                                        .Select(message => message)
+                                        .Include(message => message.UserFrom)
+                                        .ToListAsync();
     }
 }

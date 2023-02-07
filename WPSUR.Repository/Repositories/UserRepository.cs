@@ -10,10 +10,10 @@ namespace WPSUR.Repository.Repositories
 
         public UserRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext)); ;
+            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<(UserEntity, UserEntity)> GetSenderReceiver(Guid userFromId, Guid userToId)
+        public async Task<(UserEntity, UserEntity)> GetSenderReceiverAsync(Guid userFromId, Guid userToId)
         {
             try
             {

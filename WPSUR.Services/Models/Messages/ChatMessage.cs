@@ -1,4 +1,4 @@
-﻿namespace WPSUR.Services.Models
+﻿namespace WPSUR.Services.Models.Messages
 {
     public sealed class ChatMessage
     {

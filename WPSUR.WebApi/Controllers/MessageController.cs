@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Data.Common;
 using WPSUR.Services.Exceptions.MessagesExceptions;
+using WPSUR.Services.Exceptions.UserExceptions;
 using WPSUR.Services.Interfaces;
-using WPSUR.Services.Models;
+using WPSUR.Services.Models.Messages;
 using WPSUR.WebApi.Models.Message.Request;
 
 namespace WPSUR.WebApi.Controllers
@@ -16,6 +17,38 @@ namespace WPSUR.WebApi.Controllers
         public MessageController(IMessageService service)
         {
             _service = service ?? throw new ArgumentNullException(nameof(service));
+        }
+
+        [HttpDelete("deleteMessages")]
+        public async Task<IActionResult> DeleteMessages([FromBody] ICollection<Guid> Ids)
+        {
+            try
+            {
+                if (!Ids.Any())
+                {
+                    return BadRequest("Input messages to delete is equal to null.");
+                }
+
+                await _service.DeleteMessagesAsync(Ids);
+
+                return Ok();
+            }
+            catch (UserDoesNotExistException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (MessageDoesNotExistException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (MessageValidationException messageException)
+            {
+                return BadRequest(messageException.Message);
+            }
+            catch (Exception)
+            {
+                return BadRequest("Unexpected exception. Try again.");
+            }
         }
 
         [HttpPost]
@@ -35,29 +68,17 @@ namespace WPSUR.WebApi.Controllers
                     UserTo = createMessageRequest.UserTo,
                 };
 
-                await _service.CreateMessageAsync(messageToService);
+                await _service.CreateAsync(messageToService);
 
                 return Ok();
-            }
-            catch (NullReferenceException nullException)
-            {
-                return BadRequest(nullException.Message);
             }
             catch(MessageValidationException messageException)
             {
                 return BadRequest(messageException.Message);
             }
-            catch(ArgumentNullException argumentNullException)
-            {
-                return BadRequest(argumentNullException.Message); 
-            }
-            catch (DbException)
-            {
-                return BadRequest("An error occured while saving data to database");
-            }
             catch (Exception)
             {
-                return BadRequest("Unhandled exception occurred while processing message creation.");
+                return BadRequest("Unexpected exception. Try again.");
             }
         }
     }

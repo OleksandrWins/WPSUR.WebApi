@@ -1,9 +1,10 @@
-﻿using System.Data.Common;
-using WPSUR.Repository.Entities;
+﻿using WPSUR.Repository.Entities;
 using WPSUR.Repository.Interfaces;
 using WPSUR.Services.Exceptions.MessagesExceptions;
+using WPSUR.Services.Exceptions.UserExceptions;
 using WPSUR.Services.Interfaces;
-using WPSUR.Services.Models;
+using WPSUR.Services.Models.Messages;
+using WPSUR.Services.Models.Messages.Response;
 
 namespace WPSUR.Services.Services
 {
@@ -15,12 +16,12 @@ namespace WPSUR.Services.Services
 
         public MessageService(IMessageRepository messageRepository, IChatHubService chatHubService, IUserRepository userRepository)
         {
-            _messageRepository = messageRepository;
-            _chatHubService = chatHubService;
-            _userRepository = userRepository;
+            _messageRepository = messageRepository ?? throw new ArgumentNullException(nameof(messageRepository));
+            _chatHubService = chatHubService ?? throw new ArgumentNullException(nameof(chatHubService));
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
-        public async Task CreateMessageAsync(ChatMessage chatMessage)
+        public async Task CreateAsync(ChatMessage chatMessage)
         {
             if (chatMessage == null)
             {
@@ -32,16 +33,16 @@ namespace WPSUR.Services.Services
                 throw new MessageValidationException("Message content is invalid.");
             }
 
-            (UserEntity sender, UserEntity receiver) = await _userRepository.GetSenderReceiver(chatMessage.UserFrom, chatMessage.UserTo);
+            (UserEntity sender, UserEntity receiver) = await _userRepository.GetSenderReceiverAsync(chatMessage.UserFrom, chatMessage.UserTo);
 
             if (sender == null)
             {
-                throw new NullReferenceException("An error occured while getting user from database. Author of the message is null");
+                throw new UserDoesNotExistException("An error occured while getting user from database. Author of the message is null");
             }
 
             if (receiver == null)
             {
-                throw new NullReferenceException("An error occured while getting user form database. Message receiver is null");
+                throw new UserDoesNotExistException("An error occured while getting user form database. Message receiver is null");
             }
 
             MessageEntity message = new()
@@ -54,9 +55,33 @@ namespace WPSUR.Services.Services
                 CreatedDate = DateTime.UtcNow,
             };
 
-            await _messageRepository.CreateMessageAsync(message);
+            await _messageRepository.CreateAsync(message);
 
-            await _chatHubService.SendMessage(chatMessage);
+            await _chatHubService.SendMessageAsync(chatMessage);
+        }
+
+        public async Task DeleteMessagesAsync(ICollection<Guid> Ids)
+        {
+            List<MessageEntity> messages = (await _messageRepository.GetMessagesCollectionAsync(Ids)).ToList();
+
+            if (!Ids.Any())
+            {
+                throw new MessageDoesNotExistException("Message doesn't exist");
+            }
+
+            UserEntity sender = messages[0].UserFrom;
+            UserEntity receiver = messages[0].UserTo;
+
+            await _messageRepository.DeleteCollectionAsync(messages, sender);
+
+            MessageDeletionNotification deletionNotification = new()
+            {
+                MessageIds = Ids,
+                ReceiverId = receiver.Id,
+                SenderId = sender.Id,
+            };
+
+            await _chatHubService.DeleteMessageAsync(deletionNotification);
         }
     }
 }

@@ -28,8 +28,6 @@
 
   <ItemGroup>
     <Folder Include="Models\Message\Response\" />
-    <Folder Include="RequestModels\" />
-    <Folder Include="ResponseModels\" />
   </ItemGroup>
 	
 </Project>

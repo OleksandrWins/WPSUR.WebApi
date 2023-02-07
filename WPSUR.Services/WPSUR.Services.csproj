@@ -14,4 +14,8 @@
     <ProjectReference Include="..\WPSUR.Repository\WPSUR.Repository.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\Messages\Requests\" />
+  </ItemGroup>
+
 </Project>
