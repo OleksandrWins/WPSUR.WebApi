@@ -12,14 +12,17 @@ namespace WPSUR.Repository.Repositories
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
-
-        public async Task<SubTagEntity> GetSubTagByTitleAsync(string title)
+        public async Task<IList<SubTagEntity>> GetExistedSubTagsCollectionAsync(ICollection<string> subTagsTitles)
         {
             try
             {
-                SubTagEntity subTag = await _dbContext.Set<SubTagEntity>().FirstOrDefaultAsync(x => x.Title == title);
+                List<SubTagEntity> subTags = await _dbContext.SubTags.Where(subTag => subTagsTitles.Contains(subTag.Title))
+                                                                        .Select(subTag => subTag)
+                                                                        .Include(subTag => subTag.MainTags)
+                                                                        .Include(subTag => subTag.Posts)
+                                                                        .ToListAsync();
 
-                return subTag ?? throw new NullReferenceException(nameof(subTag));
+                return subTags;
             }
             catch
             {

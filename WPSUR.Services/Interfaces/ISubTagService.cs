@@ -4,8 +4,12 @@ namespace WPSUR.Services.Interfaces
 {
     public interface ISubTagService
     {
-        public Task<SubTagEntity> GetOrCreateSubTagAsync(string subTagTitle);
-        public Task<SubTagEntity> AddPostToSubTagAsync(PostEntity post, SubTagEntity subTag);
-        public Task<SubTagEntity> AddMainTagToSubTagAsync(MainTagEntity mainTag, SubTagEntity subTag);
+        //public Task<ICollection<SubTagEntity>> GetExistingSubTags(ICollection<string> subTags);
+        public Task<ICollection<SubTagEntity>> GetOrCreateSubTagsAsync(ICollection<string> subTagsTitles);
+
+        //public Task<SubTagEntity> GetOrCreateSubTagAsync(string subTagTitle);
+        //public Task<SubTagEntity> AddPostToSubTagsAsync(PostEntity post, ICollection<SubTagEntity> subTags);
+        public Task<ICollection<SubTagEntity>> AddPostToSubTagsAsync(PostEntity post, ICollection<SubTagEntity> subTags);
+        public Task<SubTagEntity> AddMainTagToSubTagsAsync(MainTagEntity mainTag, SubTagEntity subTag);
     }
 }

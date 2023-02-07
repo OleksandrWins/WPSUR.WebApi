@@ -9,6 +9,7 @@ namespace WPSUR.Services.Models.Tags
 {
     public class SubTagModel
     {
+        public Guid Id { get; set; }
         public string Title { get; set; }
 
         public ICollection<string> MainTags { get; set; }

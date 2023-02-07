@@ -14,9 +14,9 @@ namespace WPSUR.Services.Services
 
         public PostService(IPostRepository postRepository, ISubTagService subTagService, IMainTagService mainTagService)
         {
-            _postRepository = postRepository;
-            _subTagService = subTagService;
-            _mainTagService = mainTagService;
+            _postRepository = postRepository ?? throw new ArgumentNullException(nameof(postRepository)); 
+            _subTagService = subTagService ?? throw new ArgumentNullException(nameof(subTagService));
+            _mainTagService = mainTagService ?? throw new ArgumentNullException(nameof(mainTagService));
         }
 
         public async Task CreatePostAsync(PostModel postModel)
@@ -44,16 +44,18 @@ namespace WPSUR.Services.Services
                 Title = postModel.Title,
                 Body = postModel.Body,
                 MainTag = await _mainTagService.GetOrCreateMainTagAsync(postModel.MainTag),
+                SubTags = await _subTagService.GetOrCreateSubTagsAsync(postModel.SubTags)
             };
             await _mainTagService.AddPostToMainTagAsync(postEntity, postEntity.MainTag);
-            foreach (string subTagTitle in postModel.SubTags)
-            {
-                SubTagEntity subTag = await _subTagService.GetOrCreateSubTagAsync(subTagTitle);
-                postEntity.SubTags.Add(subTag);
-                await _subTagService.AddPostToSubTagAsync(postEntity, subTag);
-                await _mainTagService.AddSubTagToMainTagAsync(subTag, postEntity.MainTag);
-                await _subTagService.AddMainTagToSubTagAsync(postEntity.MainTag, subTag);
-            }
+
+            //foreach (string subTagTitle in postModel.SubTags)
+            //{
+            //    SubTagEntity subTag = await _subTagService.GetOrCreateSubTagAsync(subTagTitle);
+            //    postEntity.SubTags.Add(subTag);
+            //    await _subTagService.AddPostToSubTagAsync(postEntity, subTag);
+            //    await _mainTagService.AddSubTagToMainTagAsync(subTag, postEntity.MainTag);
+            //    await _subTagService.AddMainTagToSubTagAsync(postEntity.MainTag, subTag);
+            //}
             await _postRepository.SaveNewPostAsync(postEntity);
         }
     }
