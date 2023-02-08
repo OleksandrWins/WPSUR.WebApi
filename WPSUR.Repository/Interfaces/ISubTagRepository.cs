@@ -4,6 +4,6 @@ namespace WPSUR.Repository.Interfaces
 {
     public interface ISubTagRepository : IManageableRepositoryBase<SubTagEntity>
     {
-        public Task<SubTagEntity> GetSubTagByTitleAsync(string title);
+        public Task<ICollection<SubTagEntity>> GetSubTagsByNamesAsync(ICollection<string> subTagsTitles);
     }
 }

@@ -1,25 +1,29 @@
-﻿using WPSUR.Repository.Entities;
+﻿using System.Reflection.Metadata;
+using System.Security.Cryptography.X509Certificates;
+using WPSUR.Repository.Entities;
 using WPSUR.Repository.Interfaces;
+using WPSUR.Repository.Repositories;
 using WPSUR.Services.Exceptions.PostExceptions;
 using WPSUR.Services.Interfaces;
 using WPSUR.Services.Models.Post;
+using WPSUR.Services.Models.Tags;
 
 namespace WPSUR.Services.Services
 {
     public class PostService : IPostService
     {
         private readonly IPostRepository _postRepository;
-        private readonly ISubTagService _subTagService;
-        private readonly IMainTagService _mainTagService;
+        private readonly IMainTagRepository _mainTagRepository;
+        private readonly ISubTagRepository _subTagRepository;
 
-        public PostService(IPostRepository postRepository, ISubTagService subTagService, IMainTagService mainTagService)
+        public PostService(IPostRepository postRepository, IMainTagRepository mainTagRepository, ISubTagRepository subTagRepository)
         {
-            _postRepository = postRepository;
-            _subTagService = subTagService;
-            _mainTagService = mainTagService;
+            _postRepository = postRepository ?? throw new ArgumentNullException(nameof(postRepository));
+            _mainTagRepository = mainTagRepository ?? throw new ArgumentNullException(nameof(mainTagRepository));
+            _subTagRepository = subTagRepository ?? throw new ArgumentNullException(nameof(subTagRepository));
         }
 
-        public async Task CreatePostAsync(PostModel postModel)
+        private void PostValidationException(PostModel postModel)
         {
             if (String.IsNullOrWhiteSpace(postModel.Title))
             {
@@ -37,27 +41,70 @@ namespace WPSUR.Services.Services
             {
                 throw new LengthOfBodyException("The body of the post should not exceed 1000 symbols.");
             }
+        }
 
-            PostEntity postEntity = new PostEntity()
+        private async Task<MainTagEntity> GetMainTag(string mainTagTitle)
+        {
+            MainTagEntity mainTagEntity = await _mainTagRepository.GetMainTagByTitleAsync(mainTagTitle);
+            if (mainTagEntity == null)
+            {
+                mainTagEntity = new MainTagEntity()
+                {
+                    Id = Guid.NewGuid(),
+                    Title = mainTagTitle.Trim().ToUpper(),
+                    CreatedBy = new UserEntity() { Id = Guid.NewGuid() },
+                    CreatedDate = DateTime.UtcNow,
+                };
+            }
+            return mainTagEntity;
+        }
+
+        private async Task GetMainTagSubEntities(ICollection<SubTagEntity> subTagEntities, MainTagEntity mainTagEntity)
+        {
+            foreach (SubTagEntity subTagEntity in subTagEntities)
+            {
+                if (subTagEntity.MainTags is null)
+                {
+                    subTagEntity.MainTags = new List<MainTagEntity>();
+                }
+                if (!subTagEntity.MainTags.Contains(mainTagEntity))
+                {
+                    subTagEntity.MainTags.Add(mainTagEntity);
+                }
+            }
+        }
+        public async Task CreatePostAsync(PostModel postModel)
+        {
+            PostValidationException(postModel);
+
+            MainTagEntity mainTagEntity = await GetMainTag(postModel.Title);
+
+            ICollection<SubTagEntity> subTagEntities = await _subTagRepository.GetSubTagsByNamesAsync(postModel.SubTags);
+            ICollection<string> subTagsToAdd = postModel.SubTags.Where(subTagTitle => !subTagEntities.Any(subTag => subTag.Title == subTagTitle)).ToList().AsReadOnly();
+            foreach(string subTag in subTagsToAdd)
+            {
+                subTagEntities.Add(new SubTagEntity()
+                {
+                    Id = Guid.NewGuid(),
+                    Title = subTag.Trim().ToUpper(),
+                    CreatedBy = new UserEntity() { Id = Guid.NewGuid() },
+                    CreatedDate = DateTime.UtcNow,
+                }) ;
+            }
+
+            await GetMainTagSubEntities(subTagEntities, mainTagEntity);
+
+            PostEntity postEntity = new()
             {
                 Id = Guid.NewGuid(),
                 Title = postModel.Title,
                 Body = postModel.Body,
-                MainTag = await _mainTagService.GetOrCreateMainTagAsync(postModel),
+                MainTag = mainTagEntity,
+                SubTags = subTagEntities,
+                CreatedBy = new UserEntity() { Id = Guid.NewGuid()},
+                CreatedDate = DateTime.UtcNow,
             };
-
-            await _mainTagService.AddPostToMainTag(postEntity, postEntity.MainTag);
-
-            foreach (string subTagTitle in postModel.SubTags)
-            {
-                SubTagEntity subTag = await _subTagService.GetOrCreateSubTagAsync(subTagTitle);
-                postEntity.SubTags.Add(subTag);
-                await _subTagService.AddPostToSubTag(postEntity, subTag);
-                await _mainTagService.AddSubTagToMainTag(subTag, postEntity.MainTag);
-                await _subTagService.AddMainTagToSubTag(postEntity.MainTag, subTag);
-            }
-
-            await _postRepository.SaveNewPostAsync(postEntity);
+            await _postRepository.CreateAsync(postEntity);
         }
     }
 }
