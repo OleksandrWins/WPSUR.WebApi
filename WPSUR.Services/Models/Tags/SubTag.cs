@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WPSUR.Repository.Entities;
-
-namespace WPSUR.Services.Models.Tags
+﻿namespace WPSUR.Services.Models.Tags
 {
-    public class SubTagModel
+    public class SubTag
     {
         public Guid Id { get; set; }
         public string Title { get; set; }

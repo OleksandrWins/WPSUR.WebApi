@@ -58,6 +58,21 @@ namespace WPSUR.Services.Services
             }
             return mainTagEntity;
         }
+
+        private async Task GetMainTagSubEntities(ICollection<SubTagEntity> subTagEntities, MainTagEntity mainTagEntity)
+        {
+            foreach (SubTagEntity subTagEntity in subTagEntities)
+            {
+                if (subTagEntity.MainTags is null)
+                {
+                    subTagEntity.MainTags = new List<MainTagEntity>();
+                }
+                if (!subTagEntity.MainTags.Contains(mainTagEntity))
+                {
+                    subTagEntity.MainTags.Add(mainTagEntity);
+                }
+            }
+        }
         public async Task CreatePostAsync(PostModel postModel)
         {
             PostValidationException(postModel);
@@ -77,17 +92,7 @@ namespace WPSUR.Services.Services
                 }) ;
             }
 
-            foreach (SubTagEntity subTagEntity in subTagEntities)
-            {
-                if (subTagEntity.MainTags is null)
-                {
-                    subTagEntity.MainTags = new List<MainTagEntity>();
-                }
-                if (!subTagEntity.MainTags.Contains(mainTagEntity))
-                {
-                    subTagEntity.MainTags.Add(mainTagEntity);
-                }
-            }
+            await GetMainTagSubEntities(subTagEntities, mainTagEntity);
 
             PostEntity postEntity = new()
             {
