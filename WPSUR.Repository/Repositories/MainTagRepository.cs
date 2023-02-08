@@ -18,7 +18,7 @@ namespace WPSUR.Repository.Repositories
             {
                 MainTagEntity mainTag = await _dbContext.Set<MainTagEntity>().FirstOrDefaultAsync(x => x.Title == title);
 
-                return mainTag; //?? throw new NullReferenceException(nameof(mainTag));
+                return mainTag; 
             }
             catch
             {

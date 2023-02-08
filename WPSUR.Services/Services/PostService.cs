@@ -23,7 +23,7 @@ namespace WPSUR.Services.Services
             _subTagRepository = subTagRepository ?? throw new ArgumentNullException(nameof(subTagRepository));
         }
 
-        public async Task CreatePostAsync(PostModel postModel)
+        private void PostValidationException(PostModel postModel)
         {
             if (String.IsNullOrWhiteSpace(postModel.Title))
             {
@@ -41,20 +41,31 @@ namespace WPSUR.Services.Services
             {
                 throw new LengthOfBodyException("The body of the post should not exceed 1000 symbols.");
             }
-            MainTagEntity mainTagEntity = await _mainTagRepository.GetMainTagByTitleAsync(postModel.MainTag);
+        }
+
+        private async Task<MainTagEntity> GetMainTag(string mainTagTitle)
+        {
+            MainTagEntity mainTagEntity = await _mainTagRepository.GetMainTagByTitleAsync(mainTagTitle);
             if (mainTagEntity == null)
             {
                 mainTagEntity = new MainTagEntity()
                 {
                     Id = Guid.NewGuid(),
-                    Title = postModel.MainTag.Trim().ToUpper(),
+                    Title = mainTagTitle.Trim().ToUpper(),
                     CreatedBy = new UserEntity() { Id = Guid.NewGuid() },
                     CreatedDate = DateTime.UtcNow,
                 };
             }
+            return mainTagEntity;
+        }
+        public async Task CreatePostAsync(PostModel postModel)
+        {
+            PostValidationException(postModel);
+
+            MainTagEntity mainTagEntity = await GetMainTag(postModel.Title);
 
             ICollection<SubTagEntity> subTagEntities = await _subTagRepository.GetSubTagsByNamesAsync(postModel.SubTags);
-            var subTagsToAdd = postModel.SubTags.Where(xx => !subTagEntities.Any(xxx => xxx.Title == xx)).ToList().AsReadOnly();
+            ICollection<string> subTagsToAdd = postModel.SubTags.Where(subTagTitle => !subTagEntities.Any(subTag => subTag.Title == subTagTitle)).ToList().AsReadOnly();
             foreach(string subTag in subTagsToAdd)
             {
                 subTagEntities.Add(new SubTagEntity()

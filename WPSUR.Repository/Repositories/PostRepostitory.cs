@@ -13,16 +13,9 @@ namespace WPSUR.Repository.Repositories
         }
         public async Task CreateAsync(PostEntity post)
         {
-            try
-            {
-                await _dbContext.Posts.AddAsync(post);
+            await _dbContext.Posts.AddAsync(post);
 
-                await _dbContext.SaveChangesAsync();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            await _dbContext.SaveChangesAsync();
         }
     }
 }
