@@ -4,5 +4,6 @@ namespace WPSUR.Repository.Interfaces
 {
     public interface IPostRepository : IManageableRepositoryBase<PostEntity>
     {
+        public Task CreateAsync(PostEntity post);
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WPSUR.Repository;
 
@@ -11,9 +12,11 @@ using WPSUR.Repository;
 namespace WPSUR.Repository.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230131131416_Post")]
+    partial class Post
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,21 +24,6 @@ namespace WPSUR.Repository.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("MainTagEntitySubTagEntity", b =>
-                {
-                    b.Property<Guid>("MainTagsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SubTagsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("MainTagsId", "SubTagsId");
-
-                    b.HasIndex("SubTagsId");
-
-                    b.ToTable("MainTagEntitySubTagEntity");
-                });
 
             modelBuilder.Entity("PostEntitySubTagEntity", b =>
                 {
@@ -206,6 +194,9 @@ namespace WPSUR.Repository.Migrations
                     b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("MainTagId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Title")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -222,6 +213,8 @@ namespace WPSUR.Repository.Migrations
 
                     b.HasIndex("DeletedById");
 
+                    b.HasIndex("MainTagId");
+
                     b.HasIndex("UpdatedById");
 
                     b.ToTable("SubTag");
@@ -233,39 +226,9 @@ namespace WPSUR.Repository.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("User");
-                });
-
-            modelBuilder.Entity("MainTagEntitySubTagEntity", b =>
-                {
-                    b.HasOne("WPSUR.Repository.Entities.MainTagEntity", null)
-                        .WithMany()
-                        .HasForeignKey("MainTagsId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("WPSUR.Repository.Entities.SubTagEntity", null)
-                        .WithMany()
-                        .HasForeignKey("SubTagsId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("PostEntitySubTagEntity", b =>
@@ -392,6 +355,11 @@ namespace WPSUR.Repository.Migrations
                         .HasForeignKey("DeletedById")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("WPSUR.Repository.Entities.MainTagEntity", "MainTag")
+                        .WithMany("SubTags")
+                        .HasForeignKey("MainTagId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("WPSUR.Repository.Entities.UserEntity", "UpdatedBy")
                         .WithMany()
                         .HasForeignKey("UpdatedById")
@@ -401,12 +369,16 @@ namespace WPSUR.Repository.Migrations
 
                     b.Navigation("DeletedBy");
 
+                    b.Navigation("MainTag");
+
                     b.Navigation("UpdatedBy");
                 });
 
             modelBuilder.Entity("WPSUR.Repository.Entities.MainTagEntity", b =>
                 {
                     b.Navigation("Posts");
+
+                    b.Navigation("SubTags");
                 });
 #pragma warning restore 612, 618
         }
