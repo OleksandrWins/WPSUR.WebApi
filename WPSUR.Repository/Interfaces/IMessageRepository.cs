@@ -11,5 +11,9 @@ namespace WPSUR.Repository.Interfaces
         public Task DeleteCollectionAsync(ICollection<MessageEntity> message, UserEntity user);
 
         public Task UpdateAsync(MessageEntity message, string Content);
+
+        public Task<ICollection<MessageEntity>> GetChatCollectionAsync(Guid senderId, Guid receiverId);
+
+        public Task<ICollection<Guid>> GetUserChats(Guid senderId);
     }
 }

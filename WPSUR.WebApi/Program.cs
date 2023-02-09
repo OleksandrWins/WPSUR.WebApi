@@ -23,12 +23,13 @@ builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IChatHubService, ChatHubService>();
+builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<ChatHub>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Enable policy", policy =>
     {
-        policy.WithOrigins("http://127.0.0.1:5500").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+        policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
 

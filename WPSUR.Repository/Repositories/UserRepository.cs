@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 using WPSUR.Repository.Entities;
 using WPSUR.Repository.Interfaces;
 
@@ -24,7 +25,22 @@ namespace WPSUR.Repository.Repositories
                     throw new ArgumentException("Invalid response occured from database while getting data from it.");
                 }
 
-                (UserEntity, UserEntity) result = (senderReceiverCollection[0], senderReceiverCollection[1]);
+                UserEntity sender = new();
+                UserEntity receiver = new();
+
+                if (userFromId.Equals(senderReceiverCollection[0].Id))
+                {
+                    sender = senderReceiverCollection[0];
+                    receiver = senderReceiverCollection[1];
+                }
+
+                if (userFromId.Equals(senderReceiverCollection[1].Id))
+                {
+                    sender = senderReceiverCollection[1];
+                    receiver = senderReceiverCollection[0];
+                }
+
+                (UserEntity sender, UserEntity receiver) result = (sender, receiver);
 
                 return result;
             }

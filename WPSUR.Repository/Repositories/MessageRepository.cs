@@ -49,5 +49,25 @@ namespace WPSUR.Repository.Repositories
 
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<ICollection<MessageEntity>> GetChatCollectionAsync(Guid senderId, Guid receiverId)
+            => await _dbContext.Messages.Where(message => (message.UserFrom.Id.Equals(senderId) && message.UserTo.Id.Equals(receiverId)) 
+                                        || (message.UserFrom.Id.Equals(receiverId) && message.UserTo.Id.Equals(senderId)))
+                                        .Select(message => message)
+                                        .Include(message => message.UserTo)
+                                        .Include(message => message.UserFrom)
+                                        .ToListAsync();
+
+        public async Task<ICollection<Guid>> GetUserChats(Guid senderId)
+        {
+            var groupedMessagesbySender = await _dbContext.Messages.Where(message => message.UserFrom.Id == senderId)
+                                                                   .Select(message => new { sender = message.UserFrom.Id, receiver = message.UserTo.Id })
+                                                                   .GroupBy(messages => messages.sender)
+                                                                   .ToListAsync();
+            
+            ICollection<Guid> chatCollection = groupedMessagesbySender[0].DistinctBy(message => message.receiver).Select(message => message.receiver).ToList();
+
+            return chatCollection;
+        }
     }
 }
