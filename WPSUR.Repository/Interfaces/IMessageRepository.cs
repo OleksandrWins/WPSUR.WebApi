@@ -9,5 +9,7 @@ namespace WPSUR.Repository.Interfaces
         public Task<ICollection<MessageEntity>> GetMessagesCollectionAsync(ICollection<Guid> messagesIds);
 
         public Task DeleteCollectionAsync(ICollection<MessageEntity> message, UserEntity user);
+
+        public Task UpdateAsync(MessageEntity message, string Content);
     }
 }

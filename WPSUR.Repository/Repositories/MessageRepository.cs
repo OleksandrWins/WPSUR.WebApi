@@ -38,5 +38,16 @@ namespace WPSUR.Repository.Repositories
                                         .Select(message => message)
                                         .Include(message => message.UserFrom)
                                         .ToListAsync();
+
+        public async Task UpdateAsync(MessageEntity message, string Content)
+        {
+            _dbContext.Update(message);
+
+            message.UpdatedBy = message.UserFrom;
+            message.Content = Content;
+            message.UpdatedData = DateTime.UtcNow;
+
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }

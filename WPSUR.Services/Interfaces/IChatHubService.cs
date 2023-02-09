@@ -7,6 +7,8 @@ namespace WPSUR.Services.Interfaces
     {
         public Task SendMessageAsync(ChatMessage messageToSend);
 
-        public Task DeleteMessageAsync(MessageDeletionNotification deletionNotification);
+        public Task NotifyMessageDeletion(MessageDeletionNotification deletionNotification);
+
+        public Task NotifyMessageUpdate(MessageUpdateNotification udpateNotification);
     }
 }

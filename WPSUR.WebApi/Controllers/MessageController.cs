@@ -4,6 +4,7 @@ using WPSUR.Services.Exceptions.MessagesExceptions;
 using WPSUR.Services.Exceptions.UserExceptions;
 using WPSUR.Services.Interfaces;
 using WPSUR.Services.Models.Messages;
+using WPSUR.Services.Models.Messages.Requests;
 using WPSUR.WebApi.Models.Message.Request;
 
 namespace WPSUR.WebApi.Controllers
@@ -17,6 +18,40 @@ namespace WPSUR.WebApi.Controllers
         public MessageController(IMessageService service)
         {
             _service = service ?? throw new ArgumentNullException(nameof(service));
+        }
+
+        [HttpPut("updateMessage")]
+        public async Task<IActionResult> UpdateMessage([FromBody] UpdateMessageRequest messageRequest)
+        {
+            try
+            {
+                if (messageRequest == null)
+                {
+                    return BadRequest("Input data is equal to null.");
+                }
+
+                MessageToUpdate messageToUpdate = new()
+                {
+                    Content = messageRequest.Content,
+                    Id = messageRequest.Id,
+                };
+
+                await _service.UpdateAsync(messageToUpdate);
+
+                return Ok();
+            }
+            catch (MessageDoesNotExistException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (MessageValidationException messageException)
+            {
+                return BadRequest(messageException.Message);
+            }
+            catch (Exception)
+            {
+                return BadRequest("Unexpected exception. Try again.");
+            }
         }
 
         [HttpDelete("deleteMessages")]
@@ -51,7 +86,7 @@ namespace WPSUR.WebApi.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("createMessage")]
         public async Task<IActionResult> SendMessage(CreateMessageRequest createMessageRequest)
         {
             try

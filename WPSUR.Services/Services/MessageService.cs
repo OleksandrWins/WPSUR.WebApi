@@ -4,6 +4,7 @@ using WPSUR.Services.Exceptions.MessagesExceptions;
 using WPSUR.Services.Exceptions.UserExceptions;
 using WPSUR.Services.Interfaces;
 using WPSUR.Services.Models.Messages;
+using WPSUR.Services.Models.Messages.Requests;
 using WPSUR.Services.Models.Messages.Response;
 
 namespace WPSUR.Services.Services
@@ -81,7 +82,39 @@ namespace WPSUR.Services.Services
                 SenderId = sender.Id,
             };
 
-            await _chatHubService.DeleteMessageAsync(deletionNotification);
+            await _chatHubService.NotifyMessageDeletion(deletionNotification);
+        }
+
+        public async Task UpdateAsync(MessageToUpdate messageToUpdate)
+        {
+            if (messageToUpdate == null)
+            {
+                throw new NullReferenceException();
+            }
+
+            if (string.IsNullOrWhiteSpace(messageToUpdate.Content))
+            {
+                throw new MessageValidationException("Input data is invalid.");
+            }
+
+            MessageEntity message = await _messageRepository.GetByIdAsync(messageToUpdate.Id);
+
+            if (message == null)
+            {
+                throw new MessageDoesNotExistException("Message doesn't exist.");
+            }
+
+            MessageUpdateNotification updateNotification = new()
+            {
+                MessageId = message.Id,
+                ReceiverId = message.UserTo.Id,
+                SenderId = message.UserFrom.Id,
+                Content = messageToUpdate.Content,
+            };
+
+            await _messageRepository.UpdateAsync(message, messageToUpdate.Content);
+
+            await _chatHubService.NotifyMessageUpdate(updateNotification);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace WPSUR.Services.Models.Messages.Response
 {
-    public class MessageDeletionNotification
+    public sealed class MessageDeletionNotification
     {
         public Guid ReceiverId { get; set; }
 

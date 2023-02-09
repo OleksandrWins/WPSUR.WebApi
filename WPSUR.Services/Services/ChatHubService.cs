@@ -19,9 +19,14 @@ namespace WPSUR.Services.Services
             await _chatHub.Clients.All.SendAsync("ReceiveMessage", messageToSend.Content, messageToSend.UserFrom, messageToSend.UserTo);
         }
 
-        public async Task DeleteMessageAsync(MessageDeletionNotification deletionNotification)
+        public async Task NotifyMessageDeletion(MessageDeletionNotification deletionNotification)
         {
             await _chatHub.Clients.All.SendAsync("DeleteMessage", deletionNotification.ReceiverId, deletionNotification.SenderId, deletionNotification.MessageIds);
+        }
+
+        public async Task NotifyMessageUpdate(MessageUpdateNotification udpateNotification)
+        {
+            await _chatHub.Clients.All.SendAsync("UpdateMessage", udpateNotification.ReceiverId, udpateNotification.SenderId, udpateNotification.MessageId, udpateNotification.Content);
         }
     }
 }
