@@ -1,4 +1,6 @@
-﻿namespace WPSUR.Services.Models.Account
+﻿using WPSUR.Services.Enums;
+
+namespace WPSUR.Services.Models.Account
 {
     public sealed class User
     {
@@ -9,5 +11,7 @@
         public string LastName { get; set; }
 
         public string Email { get; set; }
+
+        public UserRole Role { get; set; }
     }
 }

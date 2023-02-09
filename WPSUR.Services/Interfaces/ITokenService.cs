@@ -2,8 +2,8 @@
 
 namespace WPSUR.Services.Interfaces
 {
-    public interface IAuthService
+    public interface ITokenService
     {
-        public Task<User> LoginAsync(LoginUser model);
+        public string GetToken(User user);
     }
 }

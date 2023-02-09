@@ -14,12 +14,13 @@ namespace WPSUR.Services.Services
 
         public AccountService(IUserRepository userRepository, IPasswordHashService passwordHashService)
         {
-            _userRepository = userRepository;
-            _passwordHashService = passwordHashService;
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            _passwordHashService = passwordHashService ?? throw new ArgumentNullException(nameof(passwordHashService));
         }
 
         public async Task<User> RegisterAsync(RegisterUser userModel)
         {
+            userModel.Email = userModel.Email.ToLower();
             if (IsNullOrWhiteSpace(userModel.Email) || IsNullOrWhiteSpace(userModel.FirstName) || IsNullOrWhiteSpace(userModel.Password))
             {
                 throw new NoCredentialsException();

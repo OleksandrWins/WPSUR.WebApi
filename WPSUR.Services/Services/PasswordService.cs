@@ -1,11 +1,10 @@
 ﻿using System.Security.Cryptography;
 using WPSUR.Services.Exceptions;
 using WPSUR.Services.Interfaces;
-using WPSUR.Services.Models.Account;
 
 namespace WPSUR.Services.Services
 {
-    public class PasswordHashService : IPasswordHashService
+    public sealed class PasswordHashService : IPasswordHashService
     {
         private readonly int iterations = 1000;
         private readonly int hashSize = 496;
@@ -26,8 +25,8 @@ namespace WPSUR.Services.Services
             byte[] result = new byte[hashSize + saltSize];
             Buffer.BlockCopy(hashBuffer, 0, result, 0, hashSize);
             Buffer.BlockCopy(saltBuffer, 0, result, hashSize, saltSize);
-            var hashedPassword = Convert.ToBase64String(result);
-            return hashedPassword;
+
+            return Convert.ToBase64String(result);
         }
 
         public bool ValidatePassword(string providedPassword, string hashedPassword)

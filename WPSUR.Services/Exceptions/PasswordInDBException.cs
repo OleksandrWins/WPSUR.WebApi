@@ -4,6 +4,7 @@
     {
         public PasswordInDBException() : base("User with this email exists, please enter other email.")
         {
+
         }
     }
 }

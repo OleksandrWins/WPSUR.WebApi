@@ -1,4 +1,5 @@
-﻿using WPSUR.Repository.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using WPSUR.Repository.Entities;
 using WPSUR.Repository.Interfaces;
 
 namespace WPSUR.Repository.Repositories
@@ -12,16 +13,19 @@ namespace WPSUR.Repository.Repositories
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task <bool>  IsUserExistAsync(string email)
-            => _dbContext.Users.Any(user => user.Email == email);
+        public async Task<bool> IsUserExistAsync(string email)
+            => await GetByEmailImplementationAsync(email) is not null;
 
         public async Task CreateAsync(UserEntity user)
         {
-            _dbContext.Users.Add(user);
-            _dbContext.SaveChanges();
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
         }
-        
-        public async Task<UserEntity> GetByEmailAsync(string email) 
-            => _dbContext.Users.FirstOrDefault(user => user.Email.Equals(email, StringComparison.OrdinalIgnoreCase)); 
+
+        public async Task<UserEntity> GetByEmailAsync(string email)
+            => await GetByEmailImplementationAsync(email);
+
+        private async Task<UserEntity> GetByEmailImplementationAsync(string email)
+            => await _dbContext.Users.FirstOrDefaultAsync(user => EF.Functions.Like(user.Email, $"%{email}%"));
     }
 }

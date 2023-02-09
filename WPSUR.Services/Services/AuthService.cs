@@ -1,4 +1,7 @@
-﻿using WPSUR.Repository.Interfaces;
+﻿using WPSUR.Repository.Entities;
+using WPSUR.Repository.Interfaces;
+using WPSUR.Services.Enums;
+using WPSUR.Services.Exceptions;
 using WPSUR.Services.Interfaces;
 using WPSUR.Services.Models.Account;
 
@@ -11,13 +14,34 @@ namespace WPSUR.Services.Services
 
         public AuthService(IUserRepository userRepository, IPasswordHashService passwordHashService)
         {
-            _userRepository = userRepository;
-            _passwordHashService = passwordHashService;
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            _passwordHashService = passwordHashService ?? throw new ArgumentNullException(nameof(passwordHashService));
         }
 
-        public User Login(LoginUser model)
+        public async Task<User> LoginAsync(LoginUser userModel)
         {
-            throw new NotImplementedException();
+            userModel.Email = userModel.Email.ToLower();
+            UserEntity existingUser = await _userRepository.GetByEmailAsync(userModel.Email);
+            if (existingUser == null) 
+            {
+                throw new ArgumentNullException(nameof(userModel));
+            }
+
+            bool validate = _passwordHashService.ValidatePassword(userModel.Password, existingUser.PasswordHash);
+
+            if (!validate) 
+            {
+                throw new InvalidPasswordException();
+        }
+
+            return new User()
+        {
+                FirstName = existingUser.FirstName,
+                Email = existingUser.Email,
+                LastName = existingUser.LastName,
+                Role = (UserRole)existingUser.Role,
+                Id = existingUser.Id,
+            };
         }
     }
 }
