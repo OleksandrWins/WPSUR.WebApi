@@ -11,5 +11,11 @@ namespace WPSUR.Repository.Repositories
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
+        public async Task CreateAsync(PostEntity post)
+        {
+            await _dbContext.Posts.AddAsync(post);
+
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }
