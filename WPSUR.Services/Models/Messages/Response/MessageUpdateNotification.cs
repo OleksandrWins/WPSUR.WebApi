@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WPSUR.Services.Models.Messages.Response
+﻿namespace WPSUR.Services.Models.Messages.Response
 {
     public sealed class MessageUpdateNotification
     {
