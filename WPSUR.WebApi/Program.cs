@@ -47,6 +47,24 @@ builder.Services.AddScoped<ISubTagRepository, SubTagRepository>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR(o =>
+{
+    o.EnableDetailedErrors = true;
+});
+builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<IChatHubService, ChatHubService>();
+builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<ChatHub>();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Enable policy", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+    });
+});
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 var app = builder.Build();
@@ -58,7 +76,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseRouting();
+
+app.UseCors("Enable policy");
+
+app.MapControllers();
+
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
+
+app.UseEndpoints(
+    endpoints =>
+    {
+        endpoints.MapHub<ChatHub>("/chat");
+    }
+);  
+
 app.Run();

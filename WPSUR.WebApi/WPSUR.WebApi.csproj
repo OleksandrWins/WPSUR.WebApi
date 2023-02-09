@@ -28,4 +28,8 @@
     <ProjectReference Include="..\WPSUR.Tests\WPSUR.Tests.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\Message\Response\" />
+  </ItemGroup>
+	
 </Project>

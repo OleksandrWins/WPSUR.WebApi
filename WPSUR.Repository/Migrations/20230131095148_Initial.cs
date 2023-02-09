@@ -27,9 +27,9 @@ namespace WPSUR.Repository.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserFromId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UserToId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Content = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    UserFromId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserToId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     DeletedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
