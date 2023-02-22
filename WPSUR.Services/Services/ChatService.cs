@@ -1,6 +1,5 @@
 ﻿using WPSUR.Repository.Entities;
 using WPSUR.Repository.Interfaces;
-using WPSUR.Services.Exceptions.MessagesExceptions;
 using WPSUR.Services.Exceptions.UserExceptions;
 using WPSUR.Services.Interfaces;
 using WPSUR.Services.Models.Chat;
@@ -68,7 +67,7 @@ namespace WPSUR.Services.Services
                 };
             }
 
-            messages = messages.OrderBy(message => message.CreatedDate).ToList();    
+            messages = messages.OrderBy(message => message.CreatedDate).ToList();
 
             List<ChatMessage> chatMessages = new();
 

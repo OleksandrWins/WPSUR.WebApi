@@ -13,6 +13,7 @@ namespace WPSUR.Repository.Interfaces
         public Task CreateAsync(UserEntity user);
 
         public Task UpdateAsync(UserEntity user);
-        
+
+        public Task<ICollection<UserEntity>> FindAllWithSimilarEmail(string email, Guid userId);
     }
 }

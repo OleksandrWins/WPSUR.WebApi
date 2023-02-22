@@ -16,7 +16,7 @@ namespace WPSUR.Repository.Repositories
         public async Task<ICollection<UserEntity>> FindAllWithSimilarEmail(string email, Guid userId)
             => await _dbContext.Users.Where(user => (user.Email.Contains(email) || user.Email.Equals(email)) && user.Id != userId).ToListAsync();
 
-        public async Task<(UserEntity sender, UserEntity receiver)> GetSenderReceiverAsync(Guid userFromId, Guid userToId)
+        public async Task<(UserEntity, UserEntity)> GetSenderReceiverAsync(Guid userFromId, Guid userToId)
         {
             try
             {
@@ -72,7 +72,5 @@ namespace WPSUR.Repository.Repositories
 
         private async Task<UserEntity> GetByEmailImplementationAsync(string email)
             => await _dbContext.Users.FirstOrDefaultAsync(user => EF.Functions.Like(user.Email, $"%{email}%"));
-
-        
     }
 }
