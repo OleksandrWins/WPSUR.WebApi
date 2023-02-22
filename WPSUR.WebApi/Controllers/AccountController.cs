@@ -5,6 +5,13 @@ using WPSUR.Services.Models.Account;
 using WPSUR.WebApi.Models.Account.Request;
 using Microsoft.AspNetCore.Authorization;
 using WPSUR.WebApi.Constants;
+using WPSUR.Repository.Repositories;
+using WPSUR.Repository.Interfaces;
+using System.Net;
+using System;
+using System.Net.Http;
+using System.Text;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace WPSUR.WebApi.Controllers
 {
@@ -39,11 +46,11 @@ namespace WPSUR.WebApi.Controllers
                 await _accountService.RegisterAsync(registerUser);
                 return Ok();
             }
-            catch (NoCredentialsException exception) 
+            catch (NoCredentialsException exception)
             {
                 return BadRequest(exception.Message);
             }
-            catch (UserExistsException exception) 
+            catch (UserExistsException exception)
             {
                 return BadRequest(exception.Message);
             }
@@ -77,10 +84,5 @@ namespace WPSUR.WebApi.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Something went wrong.");
             }
         }
-
-        [Authorize(Roles = Identity.AdminRole)]
-        [HttpGet("TestAuthentication")]
-        public ActionResult<string> TestAuthentication()
-            => Ok(LoggedInUserId);
     }
 }
