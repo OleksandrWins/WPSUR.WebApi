@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Data.Common;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WPSUR.Services.Exceptions.MessagesExceptions;
 using WPSUR.Services.Exceptions.UserExceptions;
 using WPSUR.Services.Interfaces;
@@ -11,7 +11,7 @@ namespace WPSUR.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MessageController : ControllerBase
+    public class MessageController : ApiControllerBase
     {
         private readonly IMessageService _service;
 
@@ -20,8 +20,9 @@ namespace WPSUR.WebApi.Controllers
             _service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
+        [Authorize]
         [HttpPut("updateMessage")]
-        public async Task<IActionResult> UpdateMessage([FromBody] UpdateMessageRequest messageRequest)
+        public async Task<IActionResult> UpdateMessage(UpdateMessageRequest messageRequest)
         {
             try
             {
@@ -54,6 +55,7 @@ namespace WPSUR.WebApi.Controllers
             }
         }
 
+        [Authorize]
         [HttpDelete("deleteMessages")]
         public async Task<IActionResult> DeleteMessages([FromBody] ICollection<Guid> Ids)
         {
@@ -86,8 +88,9 @@ namespace WPSUR.WebApi.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost("createMessage")]
-        public async Task<IActionResult> SendMessage(CreateMessageRequest createMessageRequest)
+        public async Task<ActionResult<Guid>> SendMessage(CreateMessageRequest createMessageRequest)
         {
             try
             {
@@ -99,13 +102,13 @@ namespace WPSUR.WebApi.Controllers
                 ChatMessage messageToService = new()
                 {
                     Content = createMessageRequest.Content,
-                    UserFrom = createMessageRequest.UserFrom,
+                    UserFrom = LoggedInUserId,
                     UserTo = createMessageRequest.UserTo,
                 };
 
-                await _service.CreateAsync(messageToService);
+                Guid messageId = await _service.CreateAsync(messageToService);
 
-                return Ok();
+                return Ok(messageId);
             }
             catch(MessageValidationException messageException)
             {

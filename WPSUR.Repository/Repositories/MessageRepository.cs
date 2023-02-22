@@ -13,6 +13,16 @@ namespace WPSUR.Repository.Repositories
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
+        public async Task<MessageEntity> GetMessage(Guid id)
+        {
+            MessageEntity message = await _dbContext.Messages.Include(message => message.CreatedBy)
+                                                             .Include(message => message.UserFrom)
+                                                             .Include(message => message.UserTo)
+                                                             .FirstOrDefaultAsync(message => message.Id == id) ?? throw new NullReferenceException(nameof(message));
+
+            return message;
+        }
+
         public async Task CreateAsync(MessageEntity message)
         {
             await _dbContext.Messages.AddAsync(message);
@@ -37,37 +47,29 @@ namespace WPSUR.Repository.Repositories
             => await _dbContext.Messages.Where(message => messagesIds.Contains(message.Id))
                                         .Select(message => message)
                                         .Include(message => message.UserFrom)
+                                        .Include(message => message.UserTo)
                                         .ToListAsync();
 
-        public async Task UpdateAsync(MessageEntity message, string Content)
+        public async Task UpdateAsync(MessageEntity message, string Content, DateTime updatedDate)
         {
             _dbContext.Update(message);
 
             message.UpdatedBy = message.UserFrom;
             message.Content = Content;
-            message.UpdatedData = DateTime.UtcNow;
+            message.UpdatedData = updatedDate;
 
             await _dbContext.SaveChangesAsync();
         }
 
         public async Task<ICollection<MessageEntity>> GetChatCollectionAsync(Guid senderId, Guid receiverId)
-            => await _dbContext.Messages.Where(message => (message.UserFrom.Id.Equals(senderId) && message.UserTo.Id.Equals(receiverId)) 
-                                        || (message.UserFrom.Id.Equals(receiverId) && message.UserTo.Id.Equals(senderId)))
+            => await _dbContext.Messages.Where(message => message.DeletedBy == null && ((message.UserFrom.Id.Equals(senderId) && message.UserTo.Id.Equals(receiverId)) 
+                                        || (message.UserFrom.Id.Equals(receiverId) && message.UserTo.Id.Equals(senderId))))
                                         .Select(message => message)
                                         .Include(message => message.UserTo)
                                         .Include(message => message.UserFrom)
                                         .ToListAsync();
 
-        public async Task<ICollection<Guid>> GetUserChats(Guid senderId)
-        {
-            var groupedMessagesbySender = await _dbContext.Messages.Where(message => message.UserFrom.Id == senderId)
-                                                                   .Select(message => new { sender = message.UserFrom.Id, receiver = message.UserTo.Id })
-                                                                   .GroupBy(messages => messages.sender)
-                                                                   .ToListAsync();
-            
-            ICollection<Guid> chatCollection = groupedMessagesbySender[0].DistinctBy(message => message.receiver).Select(message => message.receiver).ToList();
-
-            return chatCollection;
-        }
+        public async Task<ICollection<MessageEntity>> GetUserMessagesAsync(Guid senderId) 
+            => await _dbContext.Messages.Where(message => senderId == message.UserTo.Id || senderId == message.UserFrom.Id).Include(message => message.UserTo).Include(message => message.UserFrom).ToListAsync();
     }
 }

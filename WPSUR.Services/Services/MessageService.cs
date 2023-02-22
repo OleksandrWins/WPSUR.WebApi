@@ -22,7 +22,7 @@ namespace WPSUR.Services.Services
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
-        public async Task CreateAsync(ChatMessage chatMessage)
+        public async Task<Guid> CreateAsync(ChatMessage chatMessage)
         {
             if (chatMessage == null)
             {
@@ -46,19 +46,26 @@ namespace WPSUR.Services.Services
                 throw new UserDoesNotExistException("An error occured while getting user form database. Message receiver is null");
             }
 
+            Guid messageId = Guid.NewGuid();
+
             MessageEntity message = new()
             {
                 Content = chatMessage.Content,
-                Id = Guid.NewGuid(),
+                Id = messageId,
                 UserFrom = sender,
                 UserTo = receiver,
                 CreatedBy = sender,
                 CreatedDate = DateTime.UtcNow,
             };
 
+            chatMessage.CreatedDate = message.CreatedDate;
+            chatMessage.Id = message.Id;
+
             await _messageRepository.CreateAsync(message);
 
             await _chatHubService.SendMessageAsync(chatMessage);
+
+            return messageId;
         }
 
         public async Task DeleteMessagesAsync(ICollection<Guid> Ids)
@@ -97,24 +104,27 @@ namespace WPSUR.Services.Services
                 throw new MessageValidationException("Input data is invalid.");
             }
 
-            MessageEntity message = await _messageRepository.GetByIdAsync(messageToUpdate.Id);
+            try
+            {
+                MessageEntity message = await _messageRepository.GetMessage(messageToUpdate.Id);
 
-            if (message == null)
+                MessageUpdateNotification updateNotification = new()
+                {
+                    MessageId = message.Id,
+                    ReceiverId = message.UserTo.Id,
+                    SenderId = message.UserFrom.Id,
+                    Content = messageToUpdate.Content,
+                    UpdatedDate = DateTime.UtcNow,
+                };
+
+                await _messageRepository.UpdateAsync(message, messageToUpdate.Content, updateNotification.UpdatedDate);
+
+                await _chatHubService.NotifyMessageUpdate(updateNotification);
+            }
+            catch (NullReferenceException)
             {
                 throw new MessageDoesNotExistException("Message doesn't exist.");
             }
-
-            MessageUpdateNotification updateNotification = new()
-            {
-                MessageId = message.Id,
-                ReceiverId = message.UserTo.Id,
-                SenderId = message.UserFrom.Id,
-                Content = messageToUpdate.Content,
-            };
-
-            await _messageRepository.UpdateAsync(message, messageToUpdate.Content);
-
-            await _chatHubService.NotifyMessageUpdate(updateNotification);
         }
     }
 }

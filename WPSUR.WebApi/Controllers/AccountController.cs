@@ -5,8 +5,6 @@ using WPSUR.Services.Models.Account;
 using WPSUR.WebApi.Models.Account.Request;
 using Microsoft.AspNetCore.Authorization;
 using WPSUR.WebApi.Constants;
-using WPSUR.Repository.Repositories;
-using WPSUR.Repository.Interfaces;
 
 namespace WPSUR.WebApi.Controllers
 {
