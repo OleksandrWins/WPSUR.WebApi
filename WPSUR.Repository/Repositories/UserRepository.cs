@@ -61,10 +61,18 @@ namespace WPSUR.Repository.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task UpdateAsync(UserEntity user)
+        {
+            _dbContext.Users.Update(user);
+            await _dbContext.SaveChangesAsync();
+        }
+
         public async Task<UserEntity> GetByEmailAsync(string email)
             => await GetByEmailImplementationAsync(email);
 
         private async Task<UserEntity> GetByEmailImplementationAsync(string email)
             => await _dbContext.Users.FirstOrDefaultAsync(user => EF.Functions.Like(user.Email, $"%{email}%"));
+
+        
     }
 }

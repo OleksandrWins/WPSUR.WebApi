@@ -2,6 +2,7 @@
 using WPSUR.Repository.Interfaces;
 using WPSUR.Services.Exceptions.PostExceptions;
 using WPSUR.Services.Interfaces;
+using WPSUR.Services.Models.Account;
 using WPSUR.Services.Models.Post;
 using WPSUR.Services.Models.Tags;
 
@@ -28,8 +29,8 @@ namespace WPSUR.Services.Services
 
             MainTagEntity mainTagEntity = await GetMainTag(postModel.Title, postModel.UserId);
 
-            ICollection<SubTagEntity> subTagEntities = await _subTagRepository.GetSubTagsByNamesAsync(postModel.SubTags);
-            ICollection<string> subTagsToAdd = postModel.SubTags.Where(subTagTitle => !subTagEntities.Any(subTag => subTag.Title == subTagTitle)).ToList().AsReadOnly();
+            ICollection<SubTagEntity> subTagEntities = await _subTagRepository.GetSubTagsByNamesAsync(postModel.SubTags.Select(subTag => subTag.Title).ToList());
+            ICollection<string> subTagsToAdd = postModel.SubTags.Where(subTagTitle => !subTagEntities.Any(subTag => subTag.Title == subTagTitle.Title)).Select(subTag => subTag.Title).ToList().AsReadOnly();
             foreach (string subTag in subTagsToAdd)
             {
                 subTagEntities.Add(new SubTagEntity()
@@ -95,6 +96,34 @@ namespace WPSUR.Services.Services
                 };
                 postModels.Add(postModel);
             }
+            return postModels;
+        }
+
+        public async Task<ICollection<PostModel>> ReceivePosts()
+        {
+            ICollection<PostEntity> posts = await _postRepository.GetPostsAsync();
+            if (posts.Count == 0)
+            {
+                throw new NullReferenceException("No posts found.");
+            }
+
+            ICollection<PostModel> postModels = posts.Select(post => new PostModel()
+            {
+                Id = post.Id,
+                UserId = post.CreatedBy.Id,
+                Title = post.Title,
+                Body = post.Body,
+                Comments = post.Comments.Select(comment => new CommentModel()
+                {
+                    Content = comment.Content,
+                    CreatedBy = new UserModel() { Email = comment.CreatedBy.Email, FirstName = comment.CreatedBy.FirstName, Id = comment.CreatedBy.Id, LastName = comment.CreatedBy.LastName},
+                    CreatedDate = comment.CreatedDate,
+                    Id = comment.Id,
+                }).ToList(),
+                MainTag = new MainTagModel() { Id = post.MainTag.Id, Title = post.MainTag.Title },
+                SubTags = post.SubTags.Select(subTag => new SubTagModel() { Id = subTag.Id, Title = subTag.Title }).ToList(),
+            }).ToList();
+           
             return postModels;
         }
 

@@ -15,5 +15,9 @@ namespace WPSUR.Repository.Entities
         public UserEntityRole Role { get; set; }
 
         public string PasswordHash { get; set; }
+
+        public string EmergencyContent { get; set; }
+
+        public string EmergencyList { get; set; }
     }
 }

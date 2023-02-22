@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WPSUR.Repository;
 
@@ -11,9 +12,11 @@ using WPSUR.Repository;
 namespace WPSUR.Repository.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230221190617_CommentsAdded")]
+    partial class CommentsAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -282,12 +285,6 @@ namespace WPSUR.Repository.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("EmergencyContent")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EmergencyList")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
 
@@ -297,17 +294,12 @@ namespace WPSUR.Repository.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("PostEntityId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CommentEntityId");
-
-                    b.HasIndex("PostEntityId");
 
                     b.ToTable("User");
                 });
@@ -501,11 +493,6 @@ namespace WPSUR.Repository.Migrations
                         .WithMany("Likes")
                         .HasForeignKey("CommentEntityId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("WPSUR.Repository.Entities.PostEntity", null)
-                        .WithMany("Likes")
-                        .HasForeignKey("PostEntityId")
-                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("WPSUR.Repository.Entities.CommentEntity", b =>
@@ -521,8 +508,6 @@ namespace WPSUR.Repository.Migrations
             modelBuilder.Entity("WPSUR.Repository.Entities.PostEntity", b =>
                 {
                     b.Navigation("Comments");
-
-                    b.Navigation("Likes");
                 });
 #pragma warning restore 612, 618
         }

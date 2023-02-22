@@ -7,5 +7,7 @@ namespace WPSUR.Repository.Interfaces
         public Task CreateAsync(PostEntity post);
         public Task<ICollection<PostEntity>> GetByMainTagAndSubTagIdsAsync(Guid MainTagId, Guid SubTagId);
         public Task<ICollection<PostEntity>> GetByTitleAsync(string title);
+        public Task<ICollection<PostEntity>> GetPostsAsync();
+        //public Task<ICollection<SubTagEntity>> GetSubTagsAsync(Guid mainTagId);
     }
 }
