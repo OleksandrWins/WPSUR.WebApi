@@ -1,15 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using WPSUR.Services.Exceptions.UserExceptions;
 using WPSUR.Services.Interfaces;
 using WPSUR.Services.Models.Chat.Request;
 using WPSUR.Services.Models.Chat.Response;
-using WPSUR.WebApi.Models.Chat.Request;
 using WPSUR.WebApi.Models.Chat.Response;
 
 namespace WPSUR.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ChatController : ControllerBase
+    public class ChatController : ApiControllerBase
     {
         private readonly IChatService _service;
 
@@ -18,20 +19,42 @@ namespace WPSUR.WebApi.Controllers
             _service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
-        [HttpGet("getChat")]
-        public async Task<ActionResult<ChatResponse>> GetChat([FromQuery]GetChatRequest chatRequest)
+        [Authorize]
+        [HttpGet("findChat")]
+        public async Task<ActionResult<ICollection<ChatReceiverResponse>>> FindChat([FromQuery] string email)
         {
             try
             {
-                if (chatRequest == null)
+                ICollection<ChatReceiverResponse> interlocutorsViewResponse = (await _service.FindChats(email, LoggedInUserId)).Select(chat => new ChatReceiverResponse
                 {
-                    return BadRequest("Error occured, try again later.");
-                }
+                    ReceiverEmail = chat.UserEmail,
+                    ReceiverFirstName = chat.UserToFirstName,
+                    ReceiverLastName = chat.UserToLastName,
+                    ReceiverId = chat.UserId,
+                }).ToList();
 
+                return Ok(interlocutorsViewResponse);
+            }
+            catch(EmailValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch(Exception)
+            {
+                return BadRequest("Unexpected exception. Try again.");
+            }
+        }
+
+        [Authorize]
+        [HttpGet("getChat")]
+        public async Task<ActionResult<ChatResponse>> GetChat([FromQuery]Guid userTo)
+        {
+            try
+            {
                 GetChatServiceRequest serviceRequest = new()
                 {
-                    UserFromId = chatRequest.UserFrom,
-                    UserToId = chatRequest.UserTo,
+                    UserFromId = LoggedInUserId,
+                    UserToId = userTo,
                 };
 
                 Chat serviceResponse = await _service.GetChat(serviceRequest);
@@ -39,8 +62,8 @@ namespace WPSUR.WebApi.Controllers
                 ChatResponse controllerResponse = new()
                 {
                     Messages = serviceResponse.Messages,
-                    UserFrom = chatRequest.UserFrom,
-                    UserTo = chatRequest.UserTo,
+                    Sender = serviceResponse.Sender,
+                    Receiver = serviceResponse.Receiver,
                 };
 
                 return Ok(controllerResponse);
@@ -51,14 +74,25 @@ namespace WPSUR.WebApi.Controllers
             } 
         }
 
+        [Authorize]
         [HttpGet("getChats")]
-        public async Task<ActionResult<ICollection<Guid>>> GetChats([FromQuery]Guid senderId)
+        public async Task<ActionResult<ICollection<ChatsResponse>>> GetChats()
         {
             try
             {
-                ICollection<Guid> Interlocutors = await _service.GetInterlocutors(senderId);
+                Guid senderId = LoggedInUserId;
 
-                return Ok(Interlocutors);
+                ICollection<ChatsResponse> interlocutors = await _service.GetInterlocutors(senderId);
+
+                List<ChatReceiverResponse> response = interlocutors.Select(interlocutor => new ChatReceiverResponse
+                {
+                    ReceiverId = interlocutor.UserId, 
+                    ReceiverFirstName = interlocutor.UserToFirstName, 
+                    ReceiverLastName = interlocutor.UserToLastName, 
+                    ReceiverEmail = interlocutor.UserEmail, 
+                }).ToList();
+
+                return Ok(response);
             } 
             catch (Exception)
             {

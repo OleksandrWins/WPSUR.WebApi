@@ -5,8 +5,9 @@ namespace WPSUR.Services.Interfaces
 {
     public interface IChatService
     {
+        public Task<ICollection<ChatsResponse>> FindChats(string receiverEmail, Guid userId);
         public Task<Chat> GetChat(GetChatServiceRequest getChatRequest);
 
-        public Task<ICollection<Guid>> GetInterlocutors(Guid senderId);
+        public Task<ICollection<ChatsResponse>> GetInterlocutors(Guid senderId);
     }
 }

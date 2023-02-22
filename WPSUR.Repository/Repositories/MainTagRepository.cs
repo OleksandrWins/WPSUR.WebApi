@@ -25,5 +25,13 @@ namespace WPSUR.Repository.Repositories
                 throw;
             }
         }
+        public async Task<ICollection<MainTagEntity>> GetMainTagsAsync()
+            => await _dbContext.MainTags.OrderByDescending(m => m.Posts.Count()).Take(5).ToListAsync();
+
+        public async Task<MainTagEntity> GetMainTagState(Guid MainTagId)
+            => await _dbContext.MainTags.Include(mainTag => mainTag.Posts).ThenInclude(post => post.SubTags).Include(mainTag => mainTag.SubTags).FirstOrDefaultAsync(mainTag => mainTag.Id == MainTagId);
+
+        public async Task<ICollection<MainTagEntity>> FindMainTagByTitleAsync(string title)
+            => await _dbContext.MainTags.Where(mainTag => mainTag.Title.Contains(title) || title.Contains(mainTag.Title)).Select(mainTag => mainTag).ToListAsync();
     }
 }

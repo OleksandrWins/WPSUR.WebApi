@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Reflection;
 using WPSUR.Repository.Entities;
 using WPSUR.Repository.Interfaces;
 
@@ -13,6 +12,9 @@ namespace WPSUR.Repository.Repositories
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
+
+        public async Task<ICollection<UserEntity>> FindAllWithSimilarEmail(string email, Guid userId)
+            => await _dbContext.Users.Where(user => (user.Email.Contains(email) || user.Email.Equals(email)) && user.Id != userId).ToListAsync();
 
         public async Task<(UserEntity, UserEntity)> GetSenderReceiverAsync(Guid userFromId, Guid userToId)
         {
@@ -48,7 +50,6 @@ namespace WPSUR.Repository.Repositories
             {
                 throw;
             }
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
         public async Task<bool> IsUserExistAsync(string email)
@@ -57,6 +58,12 @@ namespace WPSUR.Repository.Repositories
         public async Task CreateAsync(UserEntity user)
         {
             await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(UserEntity user)
+        {
+            _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
         }
 

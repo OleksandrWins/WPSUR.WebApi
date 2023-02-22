@@ -52,6 +52,49 @@ namespace WPSUR.Repository.Migrations
                     b.ToTable("PostEntitySubTagEntity");
                 });
 
+            modelBuilder.Entity("WPSUR.Repository.Entities.CommentEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CreatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("TargetPostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedData")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("DeletedById");
+
+                    b.HasIndex("TargetPostId");
+
+                    b.HasIndex("UpdatedById");
+
+                    b.ToTable("Comment");
+                });
+
             modelBuilder.Entity("WPSUR.Repository.Entities.MainTagEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -233,7 +276,16 @@ namespace WPSUR.Repository.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("CommentEntityId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmergencyContent")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmergencyList")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FirstName")
@@ -245,10 +297,17 @@ namespace WPSUR.Repository.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("PostEntityId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CommentEntityId");
+
+                    b.HasIndex("PostEntityId");
 
                     b.ToTable("User");
                 });
@@ -281,6 +340,38 @@ namespace WPSUR.Repository.Migrations
                         .HasForeignKey("SubTagsId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("WPSUR.Repository.Entities.CommentEntity", b =>
+                {
+                    b.HasOne("WPSUR.Repository.Entities.UserEntity", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WPSUR.Repository.Entities.UserEntity", "DeletedBy")
+                        .WithMany()
+                        .HasForeignKey("DeletedById")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WPSUR.Repository.Entities.PostEntity", "TargetPost")
+                        .WithMany("Comments")
+                        .HasForeignKey("TargetPostId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WPSUR.Repository.Entities.UserEntity", "UpdatedBy")
+                        .WithMany()
+                        .HasForeignKey("UpdatedById")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("DeletedBy");
+
+                    b.Navigation("TargetPost");
+
+                    b.Navigation("UpdatedBy");
                 });
 
             modelBuilder.Entity("WPSUR.Repository.Entities.MainTagEntity", b =>
@@ -404,9 +495,34 @@ namespace WPSUR.Repository.Migrations
                     b.Navigation("UpdatedBy");
                 });
 
+            modelBuilder.Entity("WPSUR.Repository.Entities.UserEntity", b =>
+                {
+                    b.HasOne("WPSUR.Repository.Entities.CommentEntity", null)
+                        .WithMany("Likes")
+                        .HasForeignKey("CommentEntityId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WPSUR.Repository.Entities.PostEntity", null)
+                        .WithMany("Likes")
+                        .HasForeignKey("PostEntityId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("WPSUR.Repository.Entities.CommentEntity", b =>
+                {
+                    b.Navigation("Likes");
+                });
+
             modelBuilder.Entity("WPSUR.Repository.Entities.MainTagEntity", b =>
                 {
                     b.Navigation("Posts");
+                });
+
+            modelBuilder.Entity("WPSUR.Repository.Entities.PostEntity", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("Likes");
                 });
 #pragma warning restore 612, 618
         }

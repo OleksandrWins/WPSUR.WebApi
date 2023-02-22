@@ -21,6 +21,8 @@ namespace WPSUR.Repository
 
         public DbSet<SubTagEntity> SubTags { get; set; }
 
+        public DbSet<CommentEntity> Comments { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             IEnumerable<IMutableForeignKey> foreignKeys = modelBuilder.Model

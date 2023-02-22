@@ -16,17 +16,17 @@ namespace WPSUR.Services.Services
 
         public async Task SendMessageAsync(ChatMessage messageToSend)
         {
-            await _chatHub.Clients.All.SendAsync("ReceiveMessage", messageToSend.Content, messageToSend.UserFrom, messageToSend.UserTo);
+            await _chatHub.Clients.All.SendAsync("ReceiveMessage", messageToSend);
         }
 
         public async Task NotifyMessageDeletion(MessageDeletionNotification deletionNotification)
         {
-            await _chatHub.Clients.All.SendAsync("DeleteMessage", deletionNotification.ReceiverId, deletionNotification.SenderId, deletionNotification.MessageIds);
+            await _chatHub.Clients.All.SendAsync("DeleteMessage", deletionNotification);
         }
 
         public async Task NotifyMessageUpdate(MessageUpdateNotification udpateNotification)
         {
-            await _chatHub.Clients.All.SendAsync("UpdateMessage", udpateNotification.ReceiverId, udpateNotification.SenderId, udpateNotification.MessageId, udpateNotification.Content);
+            await _chatHub.Clients.All.SendAsync("UpdateMessage", udpateNotification);
         }
     }
 }

@@ -5,9 +5,9 @@ namespace WPSUR.Services.Models.Chat.Response
 {
     public sealed class Chat
     {
-        public Guid UserFrom { get; set; }
+        public ChatUser Sender { get; set; }
 
-        public Guid UserTo { get; set; }
+        public ChatUser Receiver { get; set; }
 
         public ICollection<ChatMessage> Messages { get; set; }
     }
