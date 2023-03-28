@@ -25,7 +25,7 @@ namespace WPSUR.Services.Services
 
         public async Task CreatePostAsync(PostModel postModel)
         {
-            PostValidation(postModel);
+            ValidatePost(postModel);
 
             MainTagEntity mainTagEntity = await GetMainTag(postModel.MainTag.Title, postModel.UserId);
 
@@ -127,7 +127,7 @@ namespace WPSUR.Services.Services
             return postModels;
         }
 
-        private void PostValidation(PostModel postModel)
+        private async Task<ICollection<PostModel>> PostValidation(PostModel postModel)
         {
             ICollection<PostEntity> posts = await _postRepository.GetPostsAsync();
             if (posts.Count == 0)
@@ -155,7 +155,7 @@ namespace WPSUR.Services.Services
             return postModels;
         }
 
-        private void PostValidation(PostModel postModel)
+        private void ValidatePost(PostModel postModel)
         {
             if (String.IsNullOrWhiteSpace(postModel.Title))
             {
