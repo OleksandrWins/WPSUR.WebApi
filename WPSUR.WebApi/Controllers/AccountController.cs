@@ -3,15 +3,6 @@ using WPSUR.Services.Exceptions;
 using WPSUR.Services.Interfaces;
 using WPSUR.Services.Models.Account;
 using WPSUR.WebApi.Models.Account.Request;
-using Microsoft.AspNetCore.Authorization;
-using WPSUR.WebApi.Constants;
-using WPSUR.Repository.Repositories;
-using WPSUR.Repository.Interfaces;
-using System.Net;
-using System;
-using System.Net.Http;
-using System.Text;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace WPSUR.WebApi.Controllers
 {
