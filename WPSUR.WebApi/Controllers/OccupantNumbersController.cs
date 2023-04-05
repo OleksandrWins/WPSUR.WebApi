@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Net;
+﻿using Microsoft.AspNetCore.Mvc;
 using WPSUR.Services.Interfaces;
 using WPSUR.Services.Models.Widgets;
 using WPSUR.WebApi.Models.Widgets;
